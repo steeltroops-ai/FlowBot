@@ -1,0 +1,44 @@
+{
+  "id": "sample-flow-1",
+  "name": "Welcome Flow",
+  "nodes": [
+    {
+      "id": "node-1",
+      "type": "textNode",
+      "position": { "x": 100, "y": 100 },
+      "data": {
+        "text": "Welcome to our chatbot! How can I help you today?",
+        "placeholder": "Enter your message..."
+      }
+    },
+    {
+      "id": "node-2", 
+      "type": "textNode",
+      "position": { "x": 400, "y": 50 },
+      "data": {
+        "text": "Great! I'm here to assist you with any questions you might have.",
+        "placeholder": "Enter your message..."
+      }
+    },
+    {
+      "id": "node-3",
+      "type": "textNode", 
+      "position": { "x": 400, "y": 150 },
+      "data": {
+        "text": "Thank you for visiting! Have a wonderful day!",
+        "placeholder": "Enter your message..."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "node-1",
+      "target": "node-2",
+      "type": "default",
+      "animated": true
+    }
+  ],
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z"
+}
