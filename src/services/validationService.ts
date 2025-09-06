@@ -220,15 +220,7 @@ export function validateFlow(
   // Generate warnings for potential improvements
   const warnings: ValidationError[] = [];
 
-  // Warning: Single node flows
-  if (nodes.length === 1) {
-    warnings.push({
-      id: 'single-node-flow',
-      type: 'flow',
-      message:
-        'Your flow has only one node. Consider adding more nodes to create a meaningful conversation flow.',
-    });
-  }
+  // Single node flows are valid - no warning needed
 
   // Warning: Very long flows (potential performance issues)
   if (nodes.length > 50) {

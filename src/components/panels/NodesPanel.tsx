@@ -300,16 +300,6 @@ const NodesPanel: React.FC = () => {
                           >
                             {nodeType.label}
                           </h3>
-                          {nodeType.isNew && (
-                            <span className="px-1.5 py-0.5 bg-green-500 text-white text-xs rounded-full">
-                              New
-                            </span>
-                          )}
-                          {nodeType.isPremium && (
-                            <span className="px-1.5 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs rounded-full">
-                              Pro
-                            </span>
-                          )}
                         </div>
                         <p className="text-xs text-secondary-500 truncate leading-tight">
                           {nodeType.description}

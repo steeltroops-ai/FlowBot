@@ -13,11 +13,9 @@ import {
 
 const Sidebar: React.FC = () => {
   const {
-    shouldShowNodesPanel,
-    shouldShowSettingsPanel,
-    shouldShowPropertiesPanel,
-    selectedNodeId,
     panelMode,
+    isPanelOpen,
+    selectedNodeId,
     sidebarWidth,
     setSidebarWidth,
   } = useUIStore();
@@ -79,7 +77,8 @@ const Sidebar: React.FC = () => {
       >
         <div className="h-full" style={{ width: sidebarWidth }}>
           <AnimatePresence mode="wait">
-            {shouldShowSettingsPanel ? (
+            {/* Render different content based on panel mode */}
+            {panelMode === 'settings' && isPanelOpen ? (
               <motion.div
                 key="settings"
                 variants={panelAnimationVariants}
@@ -123,7 +122,7 @@ const Sidebar: React.FC = () => {
                   </div>
                 )}
               </motion.div>
-            ) : shouldShowPropertiesPanel ? (
+            ) : panelMode === 'properties' && isPanelOpen ? (
               <motion.div
                 key="properties"
                 variants={panelAnimationVariants}
@@ -134,7 +133,7 @@ const Sidebar: React.FC = () => {
               >
                 <PropertiesPanel />
               </motion.div>
-            ) : shouldShowNodesPanel ? (
+            ) : panelMode === 'nodes' && isPanelOpen ? (
               <motion.div
                 key="nodes"
                 variants={panelAnimationVariants}
