@@ -2,19 +2,25 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
+import {
+  buttonVariants as animationVariants,
+  useReducedMotion,
+  getReducedMotionVariants,
+} from '../../utils/animations';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-2xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center rounded-2xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         primary:
-          'bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/25',
+          'bg-primary-500 text-white hover:bg-primary-600 shadow-elevation-2 shadow-primary-500/25',
         secondary:
-          'bg-white/80 text-gray-900 hover:bg-white/90 border border-white/30 backdrop-blur-md',
-        ghost: 'hover:bg-white/10 text-gray-700 hover:text-gray-900',
+          'bg-glass-white-80 text-surface-700 hover:bg-glass-white-90 border border-glass-white-30 backdrop-blur-lg hover:-translate-y-0.5 hover:shadow-glass-md transition-all duration-150 ease-out-cubic',
+        ghost:
+          'hover:bg-glass-white-10 text-surface-600 hover:text-surface-700 transition-all duration-150 ease-out-cubic',
         danger:
-          'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/25',
+          'bg-interactive-danger-500 text-white hover:bg-interactive-danger-600 shadow-elevation-2 shadow-interactive-danger-500/25',
       },
       size: {
         sm: 'h-8 px-3 text-xs',
@@ -62,6 +68,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ...motionProps
     } = props;
 
+    // Suppress unused variable warnings for extracted props
+    void _onDrag;
+    void _onDragStart;
+    void _onDragEnd;
+    void _onAnimationStart;
+    void _onAnimationEnd;
+    void _onAnimationIteration;
+
+    const reducedMotion = useReducedMotion();
+    const variants = reducedMotion
+      ? getReducedMotionVariants(animationVariants)
+      : animationVariants;
+
     return (
       <motion.button
         ref={ref}
@@ -69,9 +88,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         onClick={onClick}
         type={type}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.15 }}
+        variants={variants}
+        initial="idle"
+        whileHover={!reducedMotion ? 'hover' : undefined}
+        whileTap={!reducedMotion ? 'tap' : undefined}
         {...motionProps}
       >
         {loading && (

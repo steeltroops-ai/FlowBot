@@ -23,6 +23,11 @@ interface FlowStore {
   isModified: boolean;
   lastSaved: string | null;
 
+  // Auto-save settings
+  autoSaveEnabled: boolean;
+  autoSaveInterval: number; // in milliseconds
+  lastAutoSave: string | null;
+
   // History state
   history: {
     past: { nodes: FlowNode[]; edges: FlowEdge[] }[];
@@ -50,6 +55,18 @@ interface FlowStore {
   saveFlow: () => Promise<string>;
   loadFlow: (flowId: string) => Promise<void>;
   createNewFlow: (name?: string) => void;
+  updateFlowName: (name: string) => void;
+
+  // Auto-save operations
+  enableAutoSave: (interval?: number) => void;
+  disableAutoSave: () => void;
+  toggleAutoSave: () => void;
+  setAutoSaveInterval: (interval: number) => void;
+  triggerAutoSave: () => Promise<void>;
+
+  // Export/Import operations
+  exportFlow: () => Promise<string>;
+  importFlow: (jsonString: string) => Promise<void>;
 
   // History operations
   pushToHistory: () => void;
@@ -73,6 +90,9 @@ const useFlowStore = create<FlowStore>()(
       flowName: 'Untitled Flow',
       isModified: false,
       lastSaved: null,
+      autoSaveEnabled: true,
+      autoSaveInterval: 30000, // 30 seconds
+      lastAutoSave: null,
       history: {
         past: [],
         future: [],
@@ -231,6 +251,10 @@ const useFlowStore = create<FlowStore>()(
         });
       },
 
+      updateFlowName: (name: string) => {
+        set({ flowName: name, isModified: true });
+      },
+
       // History operations
       pushToHistory: () => {
         const { nodes, edges, history } = get();
@@ -290,6 +314,77 @@ const useFlowStore = create<FlowStore>()(
       canUndo: () => get().history.past.length > 0,
       canRedo: () => get().history.future.length > 0,
 
+      // Auto-save operations
+      enableAutoSave: (interval = 30000) => {
+        set({
+          autoSaveEnabled: true,
+          autoSaveInterval: interval,
+        });
+      },
+
+      disableAutoSave: () => {
+        set({
+          autoSaveEnabled: false,
+        });
+      },
+
+      toggleAutoSave: () => {
+        const { autoSaveEnabled } = get();
+        set({
+          autoSaveEnabled: !autoSaveEnabled,
+        });
+      },
+
+      setAutoSaveInterval: (interval: number) => {
+        set({
+          autoSaveInterval: interval,
+          isModified: true,
+        });
+      },
+
+      triggerAutoSave: async () => {
+        const { autoSaveEnabled, isModified, nodes } = get();
+
+        if (!autoSaveEnabled || !isModified || nodes.length === 0) {
+          return;
+        }
+
+        try {
+          await get().saveFlow();
+          set({
+            lastAutoSave: new Date().toISOString(),
+          });
+        } catch (error) {
+          console.error('Auto-save failed:', error);
+        }
+      },
+
+      // Export/Import operations
+      exportFlow: async () => {
+        const { flowId } = get();
+        const { exportFlowData } = await import(
+          '../services/persistenceService'
+        );
+        return await exportFlowData(flowId);
+      },
+
+      importFlow: async (jsonString: string) => {
+        const { importFlowData } = await import(
+          '../services/persistenceService'
+        );
+        const flowData = await importFlowData(jsonString);
+
+        set({
+          nodes: flowData.nodes,
+          edges: flowData.edges,
+          flowId: flowData.id,
+          flowName: flowData.name,
+          isModified: false,
+          lastSaved: flowData.updatedAt,
+          history: { past: [], future: [] },
+        });
+      },
+
       // Utility functions
       getNodeById: id => get().nodes.find(node => node.id === id),
       getEdgeById: id => get().edges.find(edge => edge.id === id),
@@ -301,3 +396,4 @@ const useFlowStore = create<FlowStore>()(
 );
 
 export default useFlowStore;
+export { useFlowStore };

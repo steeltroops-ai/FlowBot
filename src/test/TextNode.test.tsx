@@ -5,7 +5,13 @@ import type { TextNodeData } from '../types/flow';
 
 // Mock ReactFlow components
 vi.mock('reactflow', () => ({
-  Handle: ({ children, ...props }: any) => (
+  Handle: ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
     <div data-testid="handle" {...props}>
       {children}
     </div>
@@ -23,13 +29,11 @@ vi.mock('framer-motion', () => ({
   motion: {
     div: ({
       children,
-      whileHover: _whileHover,
-      whileTap: _whileTap,
-      variants: _variants,
-      initial: _initial,
-      animate: _animate,
       ...props
-    }: any) => <div {...props}>{children}</div>,
+    }: {
+      children?: React.ReactNode;
+      [key: string]: unknown;
+    }) => <div {...props}>{children}</div>,
   },
 }));
 
@@ -157,8 +161,9 @@ describe('TextNode', () => {
     const nodeElement = screen.getByRole('button');
     expect(nodeElement).toHaveClass(
       'relative',
-      'bg-white/80',
-      'backdrop-blur-md'
+      'bg-surface-elevated',
+      'border',
+      'rounded-2xl'
     );
   });
 
@@ -168,6 +173,6 @@ describe('TextNode', () => {
     // The MessageSquare icon should be rendered
     const iconContainer =
       screen.getByText('Text Message').previousElementSibling;
-    expect(iconContainer).toHaveClass('w-6', 'h-6', 'bg-blue-100');
+    expect(iconContainer).toHaveClass('w-8', 'h-8', 'bg-primary-100/80');
   });
 });

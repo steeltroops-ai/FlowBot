@@ -3,50 +3,91 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import NodesPanel from '../panels/NodesPanel';
 import SettingsPanel from '../panels/SettingsPanel';
+import PropertiesPanel from '../panels/PropertiesPanel';
 import useUIStore from '../../store/uiStore';
 import { cn } from '../../utils/cn';
+import {
+  sidebarVariants,
+  panelVariants,
+  useReducedMotion,
+  getReducedMotionVariants,
+} from '../../utils/animations';
 
 const Sidebar: React.FC = () => {
   const {
     isPanelOpen,
     shouldShowNodesPanel,
     shouldShowSettingsPanel,
+    shouldShowPropertiesPanel,
     selectedNodeId,
+    panelMode,
     togglePanel,
   } = useUIStore();
+
+  const reducedMotion = useReducedMotion();
+  const sidebarAnimationVariants = reducedMotion
+    ? getReducedMotionVariants(sidebarVariants)
+    : sidebarVariants;
+  const panelAnimationVariants = reducedMotion
+    ? getReducedMotionVariants(panelVariants)
+    : panelVariants;
+
+  // Determine sidebar class based on panel mode
+  const getSidebarClass = () => {
+    const baseClass =
+      'backdrop-blur-xl border-r shadow-panel-float transition-all duration-300';
+    switch (panelMode) {
+      case 'nodes':
+        return `${baseClass} bg-panel-nodes-50/90 border-panel-nodes-200/30`;
+      case 'settings':
+        return `${baseClass} bg-panel-settings-50/90 border-panel-settings-200/30`;
+      case 'properties':
+        return `${baseClass} bg-panel-properties-50/90 border-panel-properties-200/30`;
+      default:
+        return `${baseClass} bg-secondary-50/90 border-secondary-200/30`;
+    }
+  };
 
   return (
     <>
       {/* Sidebar Container */}
       <motion.div
-        initial={false}
-        animate={{
-          width: isPanelOpen ? 320 : 0,
-          opacity: isPanelOpen ? 1 : 0,
-        }}
-        transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
-        className="relative bg-white/60 backdrop-blur-xl border-l border-white/20 shadow-lg shadow-black/5 overflow-hidden"
+        variants={sidebarAnimationVariants}
+        initial="closed"
+        animate={isPanelOpen ? 'open' : 'closed'}
+        className={cn('relative overflow-hidden', getSidebarClass())}
       >
         <div className="w-80 h-full">
           <AnimatePresence mode="wait">
             {shouldShowSettingsPanel && selectedNodeId ? (
               <motion.div
                 key="settings"
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 20, opacity: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+                variants={panelAnimationVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
                 className="h-full"
               >
                 <SettingsPanel nodeId={selectedNodeId} />
               </motion.div>
+            ) : shouldShowPropertiesPanel ? (
+              <motion.div
+                key="properties"
+                variants={panelAnimationVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="h-full"
+              >
+                <PropertiesPanel />
+              </motion.div>
             ) : shouldShowNodesPanel ? (
               <motion.div
                 key="nodes"
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 20, opacity: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+                variants={panelAnimationVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
                 className="h-full"
               >
                 <NodesPanel />

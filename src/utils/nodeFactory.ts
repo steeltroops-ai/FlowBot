@@ -31,11 +31,14 @@ export function createTextNode(
 export function createNodeAtPosition(
   type: string,
   position: { x: number; y: number },
-  data: Record<string, any> = {}
+  data: Record<string, unknown> = {}
 ): FlowNode {
   switch (type) {
     case 'textNode':
-      return createTextNode(position, data.text);
+      return createTextNode(
+        position,
+        typeof data.text === 'string' ? data.text : undefined
+      );
     default:
       throw new Error(`Unknown node type: ${type}`);
   }
@@ -44,7 +47,7 @@ export function createNodeAtPosition(
 /**
  * Get default node configuration for a given type
  */
-export function getDefaultNodeData(type: string): Record<string, any> {
+export function getDefaultNodeData(type: string): Record<string, unknown> {
   switch (type) {
     case 'textNode':
       return {
@@ -59,10 +62,15 @@ export function getDefaultNodeData(type: string): Record<string, any> {
 /**
  * Validate node data structure
  */
-export function validateNodeData(type: string, data: any): boolean {
+export function validateNodeData(type: string, data: unknown): boolean {
   switch (type) {
     case 'textNode':
-      return typeof data === 'object' && typeof data.text === 'string';
+      return (
+        typeof data === 'object' &&
+        data !== null &&
+        'text' in data &&
+        typeof (data as { text: unknown }).text === 'string'
+      );
     default:
       return true;
   }

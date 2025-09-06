@@ -6,6 +6,84 @@ import type {
 } from '../types/flow';
 
 /**
+ * Helper function to detect circular dependencies in the flow
+ */
+function detectCircularDependencies(
+  nodes: FlowNode[],
+  edges: FlowEdge[]
+): string[][] {
+  const visited = new Set<string>();
+  const recursionStack = new Set<string>();
+  const circularPaths: string[][] = [];
+
+  function dfs(nodeId: string, path: string[]): void {
+    if (recursionStack.has(nodeId)) {
+      // Found a cycle - extract the circular part
+      const cycleStart = path.indexOf(nodeId);
+      if (cycleStart !== -1) {
+        circularPaths.push(path.slice(cycleStart));
+      }
+      return;
+    }
+
+    if (visited.has(nodeId)) {
+      return;
+    }
+
+    visited.add(nodeId);
+    recursionStack.add(nodeId);
+    path.push(nodeId);
+
+    // Find all outgoing edges from this node
+    const outgoingEdges = edges.filter(edge => edge.source === nodeId);
+    for (const edge of outgoingEdges) {
+      dfs(edge.target, [...path]);
+    }
+
+    recursionStack.delete(nodeId);
+  }
+
+  // Start DFS from all nodes
+  for (const node of nodes) {
+    if (!visited.has(node.id)) {
+      dfs(node.id, []);
+    }
+  }
+
+  return circularPaths;
+}
+
+/**
+ * Helper function to get all nodes reachable from start nodes
+ */
+function getReachableNodes(
+  startNodes: FlowNode[],
+  edges: FlowEdge[]
+): Set<string> {
+  const reachable = new Set<string>();
+  const queue = [...startNodes.map(node => node.id)];
+
+  while (queue.length > 0) {
+    const currentId = queue.shift()!;
+    if (reachable.has(currentId)) {
+      continue;
+    }
+
+    reachable.add(currentId);
+
+    // Add all target nodes of outgoing edges to the queue
+    const outgoingEdges = edges.filter(edge => edge.source === currentId);
+    for (const edge of outgoingEdges) {
+      if (!reachable.has(edge.target)) {
+        queue.push(edge.target);
+      }
+    }
+  }
+
+  return reachable;
+}
+
+/**
  * Validate the entire flow according to business rules
  */
 export function validateFlow(
@@ -79,16 +157,123 @@ export function validateFlow(
       errors.push({
         id: `isolated-node-${node.id}`,
         type: 'node',
-        message: 'Node is not connected to the flow',
+        message: `"${node.data.text || 'Untitled node'}" is not connected to any other nodes. Connect it to include it in your flow.`,
         nodeId: node.id,
       });
     });
   }
 
+  // Rule 5: Check for circular dependencies
+  const circularPaths = detectCircularDependencies(nodes, edges);
+  circularPaths.forEach((path, index) => {
+    errors.push({
+      id: `circular-dependency-${index}`,
+      type: 'flow',
+      message: `Circular dependency detected: ${path
+        .map(nodeId => {
+          const node = nodes.find(n => n.id === nodeId);
+          return node?.data.text || 'Untitled node';
+        })
+        .join(' → ')} → ${path[0]}`,
+    });
+  });
+
+  // Rule 6: Check for unreachable nodes (nodes that can't be reached from start nodes)
+  const startNodes = nodes.filter(
+    node => !edges.some(edge => edge.target === node.id)
+  );
+
+  if (startNodes.length > 0) {
+    const reachableNodes = getReachableNodes(startNodes, edges);
+    const unreachableNodes = nodes.filter(
+      node =>
+        !reachableNodes.has(node.id) &&
+        !startNodes.some(start => start.id === node.id)
+    );
+
+    unreachableNodes.forEach(node => {
+      errors.push({
+        id: `unreachable-node-${node.id}`,
+        type: 'node',
+        message: `"${node.data.text || 'Untitled node'}" cannot be reached from the start of your flow. Check your connections.`,
+        nodeId: node.id,
+      });
+    });
+  }
+
+  // Rule 7: Check for nodes with excessive text length
+  nodes.forEach(node => {
+    if (
+      node.type === 'textNode' &&
+      node.data.text &&
+      node.data.text.length > 1000
+    ) {
+      errors.push({
+        id: `text-too-long-${node.id}`,
+        type: 'node',
+        message: `Text message is too long (${node.data.text.length} characters). Keep messages under 1000 characters for better user experience.`,
+        nodeId: node.id,
+      });
+    }
+  });
+
+  // Generate warnings for potential improvements
+  const warnings: ValidationError[] = [];
+
+  // Warning: Single node flows
+  if (nodes.length === 1) {
+    warnings.push({
+      id: 'single-node-flow',
+      type: 'flow',
+      message:
+        'Your flow has only one node. Consider adding more nodes to create a meaningful conversation flow.',
+    });
+  }
+
+  // Warning: Very long flows (potential performance issues)
+  if (nodes.length > 50) {
+    warnings.push({
+      id: 'large-flow-warning',
+      type: 'flow',
+      message: `Your flow has ${nodes.length} nodes. Large flows may impact performance. Consider breaking it into smaller, focused flows.`,
+    });
+  }
+
+  // Warning: Nodes with very short text
+  nodes.forEach(node => {
+    if (
+      node.type === 'textNode' &&
+      node.data.text &&
+      node.data.text.trim().length < 3
+    ) {
+      warnings.push({
+        id: `short-text-${node.id}`,
+        type: 'node',
+        message: `"${node.data.text}" is very short. Consider adding more descriptive text for better user experience.`,
+        nodeId: node.id,
+      });
+    }
+  });
+
+  // Warning: Empty text nodes
+  nodes.forEach(node => {
+    if (
+      node.type === 'textNode' &&
+      (!node.data.text || node.data.text.trim().length === 0)
+    ) {
+      warnings.push({
+        id: `empty-text-${node.id}`,
+        type: 'node',
+        message: 'This text node is empty. Add a message or remove the node.',
+        nodeId: node.id,
+      });
+    }
+  });
+
   return {
     isValid: errors.length === 0,
     errors,
-    warnings: [],
+    warnings,
   };
 }
 

@@ -24,15 +24,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Header />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex relative overflow-hidden">
+      <main
+        className="flex-1 flex relative overflow-hidden"
+        role="main"
+        aria-label="Flow builder workspace"
+      >
         {/* Canvas Area */}
-        <div className="flex-1 relative">
-          {children}
-        </div>
+        <div className="flex-1 relative">{children}</div>
 
         {/* Sidebar */}
         <Sidebar />
-      </div>
+      </main>
     </div>
   );
 };

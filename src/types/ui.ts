@@ -3,25 +3,25 @@ export interface UIState {
   // Selection state
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
-  
+
   // Panel state
   panelMode: PanelMode;
   isPanelOpen: boolean;
-  
+
   // Interaction state
   isDragging: boolean;
   draggedNodeType: string | null;
-  
+
   // Error state
   validationErrors: ValidationError[];
   showErrorBanner: boolean;
-  
+
   // Loading state
   isLoading: boolean;
   loadingMessage?: string;
 }
 
-export type PanelMode = 'nodes' | 'settings';
+export type PanelMode = 'nodes' | 'settings' | 'properties';
 
 export interface ValidationError {
   id: string;
@@ -77,11 +77,11 @@ export interface ModalProps extends BaseComponentProps {
 
 // Animation types
 export interface AnimationVariants {
-  initial?: any;
-  animate?: any;
-  exit?: any;
-  hover?: any;
-  tap?: any;
+  initial?: Record<string, unknown>;
+  animate?: Record<string, unknown>;
+  exit?: Record<string, unknown>;
+  hover?: Record<string, unknown>;
+  tap?: Record<string, unknown>;
 }
 
 // Theme types

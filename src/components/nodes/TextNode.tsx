@@ -5,6 +5,11 @@ import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
 import type { TextNodeData } from '../../types/flow';
 import { cn } from '../../utils/cn';
+import {
+  nodeVariants,
+  useReducedMotion,
+  getReducedMotionVariants,
+} from '../../utils/animations';
 
 const TextNode: React.FC<NodeProps<TextNodeData>> = ({
   id,
@@ -14,18 +19,23 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
 }) => {
   const displayText = data.text || data.placeholder || 'Enter your message...';
   const isEmpty = !data.text || data.text.trim().length === 0;
+  const reducedMotion = useReducedMotion();
+  const variants = reducedMotion
+    ? getReducedMotionVariants(nodeVariants)
+    : nodeVariants;
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
+      variants={variants}
+      initial="idle"
+      animate={dragging ? 'dragging' : selected ? 'selected' : 'idle'}
+      whileHover={!reducedMotion ? 'hover' : undefined}
+      whileTap={!reducedMotion ? 'tap' : undefined}
       className={cn(
-        'relative bg-white/80 backdrop-blur-md border-2 rounded-2xl shadow-lg shadow-black/10 min-w-48 max-w-64',
-        selected
-          ? 'border-blue-500 shadow-xl shadow-blue-500/20'
-          : 'border-white/30 hover:border-white/50',
-        dragging && 'shadow-2xl shadow-black/20'
+        'relative bg-surface-elevated backdrop-blur-md border border-surface-border rounded-2xl min-w-[200px] max-w-[280px] shadow-node-default transition-all duration-200',
+        selected &&
+          'border-primary-500/60 bg-primary-50/95 shadow-node-selected',
+        dragging && 'shadow-node-dragging scale-105'
       )}
       role="button"
       tabIndex={0}
@@ -43,7 +53,7 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 bg-gray-400 border-2 border-white hover:bg-blue-500 transition-colors"
+        className="w-3 h-3 bg-secondary-400 border-2 border-surface-elevated hover:bg-primary-500 hover:scale-110 transition-all duration-200 shadow-elevation-1"
         style={{ left: -6 }}
         aria-label="Connection input - drag from another node to connect"
       />
@@ -51,11 +61,11 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
       {/* Node Content */}
       <div className="p-4">
         {/* Node Header */}
-        <div className="flex items-center space-x-2 mb-3 drag-handle cursor-move">
-          <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
-            <MessageSquare className="w-3 h-3 text-blue-600" />
+        <div className="flex items-center space-x-3 mb-4 drag-handle cursor-move">
+          <div className="w-8 h-8 bg-primary-100/80 rounded-xl flex items-center justify-center shadow-elevation-1">
+            <MessageSquare className="w-4 h-4 text-primary-600" />
           </div>
-          <span className="text-xs font-medium text-gray-600">
+          <span className="text-sm font-medium text-secondary-700 tracking-tight">
             Text Message
           </span>
         </div>
@@ -64,8 +74,8 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
         <div className="space-y-2">
           <p
             className={cn(
-              'text-sm leading-relaxed break-words',
-              isEmpty ? 'text-gray-400 italic' : 'text-gray-900'
+              'text-sm leading-relaxed break-words font-normal',
+              isEmpty ? 'text-secondary-400 italic' : 'text-secondary-700'
             )}
           >
             {displayText}
@@ -73,7 +83,7 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
 
           {/* Character count for long messages */}
           {data.text && data.text.length > 100 && (
-            <div className="text-xs text-gray-400 pt-1 border-t border-gray-200/50">
+            <div className="text-xs text-secondary-400 pt-2 mt-2 border-t border-surface-divider">
               {data.text.length} characters
             </div>
           )}
@@ -84,7 +94,7 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3 h-3 bg-gray-400 border-2 border-white hover:bg-blue-500 transition-colors"
+        className="w-3 h-3 bg-secondary-400 border-2 border-surface-elevated hover:bg-primary-500 hover:scale-110 transition-all duration-200 shadow-elevation-1"
         style={{ right: -6 }}
         aria-label="Connection output - drag to another node to connect"
       />
@@ -94,7 +104,7 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"
+          className="absolute -top-2 -right-2 w-5 h-5 bg-primary-500 rounded-full border-2 border-surface-elevated shadow-elevation-3"
           aria-hidden="true"
         />
       )}

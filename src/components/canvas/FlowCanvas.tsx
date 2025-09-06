@@ -14,18 +14,21 @@ import TextNode from '../nodes/TextNode';
 import useFlowStore from '../../store/flowStore';
 import useUIStore from '../../store/uiStore';
 import { createNodeAtPosition } from '../../utils/nodeFactory';
-import { isValidConnection } from '../../services/validationService';
+import {
+  isValidConnection,
+  validateFlow,
+} from '../../services/validationService';
 
 // Define custom node types
 const nodeTypes = {
   textNode: TextNode,
 };
 
-// Custom edge styles
+// Custom edge styles with modern colors
 const defaultEdgeOptions = {
   animated: true,
   style: {
-    stroke: '#007aff',
+    stroke: '#0ea5e9', // primary-500
     strokeWidth: 2,
   },
 };
@@ -37,7 +40,13 @@ const FlowCanvasInner: React.FC = () => {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect } =
     useFlowStore();
 
-  const { selectNode, selectEdge, setDragState } = useUIStore();
+  const {
+    selectNode,
+    selectEdge,
+    setDragState,
+    showWarnings,
+    setValidationState,
+  } = useUIStore();
 
   // Handle node selection
   const onNodeClick = useCallback(
@@ -103,7 +112,10 @@ const FlowCanvasInner: React.FC = () => {
 
   // Validate connections before allowing them
   const isValidConnectionCallback = useCallback(
-    (connection: { source: string; target: string }) => {
+    (connection: { source: string | null; target: string | null }) => {
+      if (!connection.source || !connection.target) {
+        return false;
+      }
       return isValidConnection(
         connection.source,
         connection.target,
@@ -113,6 +125,40 @@ const FlowCanvasInner: React.FC = () => {
     },
     [nodes, edges]
   );
+
+  // Perform automatic validation when flow changes
+  const performAutoValidation = useCallback(async () => {
+    if (nodes.length === 0) return;
+
+    setValidationState(true);
+
+    try {
+      // Small delay to avoid excessive validation during rapid changes
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const validation = validateFlow(nodes, edges);
+
+      if (validation.warnings.length > 0) {
+        // Convert flow ValidationError to UI ValidationError format
+        const uiWarnings = validation.warnings.map(warning => ({
+          id: warning.id,
+          message: warning.message,
+          type: 'warning' as const,
+        }));
+        showWarnings(uiWarnings);
+      }
+    } catch (error) {
+      console.error('Auto-validation failed:', error);
+    } finally {
+      setValidationState(false);
+    }
+  }, [nodes, edges, setValidationState, showWarnings]);
+
+  // Trigger auto-validation when nodes or edges change
+  React.useEffect(() => {
+    const timeoutId = setTimeout(performAutoValidation, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [performAutoValidation]);
 
   return (
     <div
@@ -161,27 +207,33 @@ const FlowCanvasInner: React.FC = () => {
         connectionMode={ConnectionMode.Strict}
         isValidConnection={isValidConnectionCallback}
         fitView
+        fitViewOptions={{
+          padding: 0.1,
+          minZoom: 0.5,
+          maxZoom: 2.0,
+        }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
         attributionPosition="bottom-left"
-        className="bg-gray-50"
+        className="bg-secondary-50"
       >
         {/* Background Pattern */}
         <Background
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1}
-          color="#e5e7eb"
+          color="#e2e8f0" // canvas-200
         />
 
         {/* Controls */}
         <Controls
-          className="bg-white/80 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg"
+          className="bg-glass-white-80 backdrop-blur-md border border-glass-white-30 rounded-2xl shadow-glass-lg"
           showInteractive={false}
         />
 
         {/* Mini Map */}
         <MiniMap
-          className="bg-white/80 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg"
-          nodeColor="#007aff"
+          className="bg-glass-white-80 backdrop-blur-md border border-glass-white-30 rounded-2xl shadow-glass-lg"
+          nodeColor="#0ea5e9" // primary-500
           maskColor="rgba(0, 0, 0, 0.1)"
           pannable
           zoomable

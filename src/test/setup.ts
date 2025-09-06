@@ -9,17 +9,30 @@ globalThis.ResizeObserver = class ResizeObserver {
 };
 
 // Mock IntersectionObserver
-(globalThis as any).IntersectionObserver = class IntersectionObserver {
+class MockIntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+
   constructor() {}
   observe() {}
   unobserve() {}
   disconnect() {}
-};
+  takeRecords() {
+    return [];
+  }
+}
+
+(
+  globalThis as unknown as {
+    IntersectionObserver: typeof MockIntersectionObserver;
+  }
+).IntersectionObserver = MockIntersectionObserver;
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query: any) => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -37,8 +50,12 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
 };
-(globalThis as any).localStorage = localStorageMock;
+(
+  globalThis as unknown as { localStorage: typeof localStorageMock }
+).localStorage = localStorageMock;
 
 // Mock DOMRect for ReactFlow
 globalThis.DOMRect = class DOMRect {

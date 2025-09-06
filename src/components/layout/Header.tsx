@@ -1,12 +1,24 @@
 import React from 'react';
-import { Save, Loader2 } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  Download,
+  Upload,
+  Settings,
+  Plus,
+  Wrench,
+} from 'lucide-react';
 import Button from '../ui/Button';
+import AutoSaveStatus from '../ui/AutoSaveStatus';
 import useFlowStore from '../../store/flowStore';
 import useUIStore from '../../store/uiStore';
+import { useFlowExportImport } from '../../hooks/useAutoSave';
 
 const Header: React.FC = () => {
   const { saveFlow, validateFlow, flowName, isModified } = useFlowStore();
-  const { showErrors, setLoading, isLoading } = useUIStore();
+  const { showErrors, setLoading, isLoading, setPanelMode, panelMode } =
+    useUIStore();
+  const { exportToFile, importFromFile } = useFlowExportImport();
 
   const handleSave = async () => {
     try {
@@ -48,22 +60,60 @@ const Header: React.FC = () => {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      setLoading(true, 'Exporting flow...');
+      await exportToFile(
+        `${flowName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`
+      );
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to export flow:', error);
+      showErrors([
+        {
+          id: 'export-error',
+          message: 'Failed to export flow. Please try again.',
+          type: 'error',
+        },
+      ]);
+      setLoading(false);
+    }
+  };
+
+  const handleImport = async () => {
+    try {
+      setLoading(true, 'Importing flow...');
+      await importFromFile();
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to import flow:', error);
+      showErrors([
+        {
+          id: 'import-error',
+          message: 'Failed to import flow. Please check the file format.',
+          type: 'error',
+        },
+      ]);
+      setLoading(false);
+    }
+  };
+
   return (
     <header
-      className="h-16 bg-white/70 backdrop-blur-2xl border-b border-white/20 shadow-sm shadow-black/5 flex items-center justify-between px-6 relative z-50"
+      className="h-16 bg-glass-white-80 backdrop-blur-xl border-b border-secondary-200/30 shadow-header-float flex items-center justify-between px-6 relative z-50"
       role="banner"
       aria-label="FlowBot application header"
     >
       {/* Left side - Logo and title */}
       <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+        <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
           <span className="text-white font-bold text-sm">F</span>
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-gray-900 tracking-tight">
+          <h1 className="text-lg font-semibold text-surface-800 tracking-tight">
             FlowBot
           </h1>
-          <p className="text-xs text-gray-500 -mt-1">
+          <p className="text-xs text-surface-500 -mt-1">
             {flowName}
             {isModified && ' •'}
           </p>
@@ -72,6 +122,9 @@ const Header: React.FC = () => {
 
       {/* Right side - Actions */}
       <div className="flex items-center space-x-4">
+        {/* Auto-save status */}
+        <AutoSaveStatus />
+
         {isModified && (
           <span
             id="unsaved-changes"
@@ -82,6 +135,79 @@ const Header: React.FC = () => {
             Unsaved changes
           </span>
         )}
+
+        {/* Action buttons */}
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setPanelMode('nodes')}
+            disabled={isLoading}
+            aria-label="Open nodes panel"
+            className={
+              panelMode === 'nodes'
+                ? 'bg-panel-nodes-100/80 text-panel-nodes-700 shadow-elevation-2'
+                : ''
+            }
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            Nodes
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setPanelMode('settings')}
+            disabled={isLoading}
+            aria-label="Open node settings"
+            className={
+              panelMode === 'settings'
+                ? 'bg-panel-settings-100/80 text-panel-settings-700 shadow-elevation-2'
+                : ''
+            }
+          >
+            <Wrench className="w-3 h-3 mr-1" />
+            Settings
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setPanelMode('properties')}
+            disabled={isLoading}
+            aria-label="Open flow properties"
+            className={
+              panelMode === 'properties'
+                ? 'bg-panel-properties-100/80 text-panel-properties-700 shadow-elevation-2'
+                : ''
+            }
+          >
+            <Settings className="w-3 h-3 mr-1" />
+            Properties
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleExport}
+            disabled={isLoading}
+            aria-label="Export flow"
+          >
+            <Download className="w-3 h-3 mr-1" />
+            Export
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleImport}
+            disabled={isLoading}
+            aria-label="Import flow"
+          >
+            <Upload className="w-3 h-3 mr-1" />
+            Import
+          </Button>
+        </div>
 
         <Button
           onClick={handleSave}

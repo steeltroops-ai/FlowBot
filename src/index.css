@@ -2,32 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom CSS Variables */
+/* WORLD-CLASS DESIGN SYSTEM - Apple, Google, SpaceX, Tesla Inspired */
 :root {
-  /* Base Colors */
-  --color-white: #ffffff;
-  --color-gray-50: #f8f9fa;
-  --color-gray-100: #f1f3f4;
-  --color-gray-500: #555555;
-  --color-gray-900: #111111;
+  /* TESLA PRECISION - Primary Brand System */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9; /* Main brand color */
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
 
-  /* Apple Blue Accent */
-  --color-blue-500: #007aff;
-  --color-blue-600: #0056cc;
-  --color-blue-700: #003d99;
+  /* SPACEX MINIMALISM - Secondary System */
+  --secondary-50: #f8fafc;
+  --secondary-100: #f1f5f9;
+  --secondary-200: #e2e8f0;
+  --secondary-300: #cbd5e1;
+  --secondary-400: #94a3b8;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+  --secondary-700: #334155;
+  --secondary-800: #1e293b;
+  --secondary-900: #0f172a;
 
-  /* Glass Overlays */
+  /* APPLE DEPTH - Surface Hierarchy */
+  --surface-canvas: #f8fafc; /* Main workspace */
+  --surface-elevated: #ffffff; /* Cards, panels */
+  --surface-overlay: #ffffff; /* Modals, dropdowns */
+  --surface-sunken: #f1f5f9; /* Input fields */
+  --surface-border: #e2e8f0; /* Subtle borders */
+  --surface-divider: #cbd5e1; /* Clear separators */
+
+  /* GOOGLE MATERIAL - Panel Context System */
+  --panel-nodes-50: #ecfdf5; /* Creation context */
+  --panel-nodes-100: #d1fae5;
+  --panel-nodes-500: #10b981;
+  --panel-settings-50: #fffbeb; /* Editing context */
+  --panel-settings-100: #fef3c7;
+  --panel-settings-500: #f59e0b;
+  --panel-properties-50: #f5f3ff; /* Flow context */
+  --panel-properties-100: #ede9fe;
+  --panel-properties-500: #8b5cf6;
+
+  /* INTERACTIVE SYSTEM - Semantic Actions */
+  --interactive-success: #22c55e;
+  --interactive-warning: #f59e0b;
+  --interactive-danger: #ef4444;
+
+  /* APPLE GLASSMORPHISM - Translucency System */
+  --glass-white-10: rgba(255, 255, 255, 0.1);
+  --glass-white-20: rgba(255, 255, 255, 0.2);
+  --glass-white-40: rgba(255, 255, 255, 0.4);
   --glass-white-60: rgba(255, 255, 255, 0.6);
   --glass-white-80: rgba(255, 255, 255, 0.8);
+  --glass-white-90: rgba(255, 255, 255, 0.9);
+
+  --glass-black-5: rgba(0, 0, 0, 0.05);
   --glass-black-10: rgba(0, 0, 0, 0.1);
+  --glass-black-15: rgba(0, 0, 0, 0.15);
   --glass-black-20: rgba(0, 0, 0, 0.2);
+  --glass-black-25: rgba(0, 0, 0, 0.25);
+  --glass-black-30: rgba(0, 0, 0, 0.3);
 
-  /* Shadows */
-  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --shadow-strong: 0 16px 64px rgba(0, 0, 0, 0.15);
+  /* MATERIAL ELEVATION - Shadow System */
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --elevation-2: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --elevation-3: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --elevation-4: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --elevation-5:
+    0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
 
-  /* Animation Curves */
+  /* TESLA PRECISION - Animation Curves */
   --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
   --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -55,22 +103,33 @@ body {
   height: 100%;
 }
 
-/* Glassmorphism Utilities */
+/* Modern Glassmorphism Utilities */
 @layer utilities {
   .glass-panel {
-    @apply bg-white/60 backdrop-blur-xl border border-white/20 shadow-lg shadow-black/5;
+    background: var(--glass-white-60);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--elevation-3);
   }
 
   .glass-node {
-    @apply bg-white/80 backdrop-blur-md border border-white/30 shadow-xl shadow-black/10 rounded-2xl;
+    background: var(--surface-elevated);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--elevation-2);
+    border-radius: 16px;
   }
 
   .glass-header {
-    @apply bg-white/70 backdrop-blur-2xl border-b border-white/20 shadow-sm shadow-black/5;
+    background: var(--glass-white-80);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--surface-border);
+    box-shadow: var(--elevation-1);
   }
 
   .glass-overlay {
-    @apply bg-black/20 backdrop-blur-sm;
+    background: var(--glass-black-20);
+    backdrop-filter: blur(8px);
   }
 
   .sr-only {
@@ -86,21 +145,33 @@ body {
   }
 }
 
-/* ReactFlow Customizations */
+/* WORLD-CLASS REACTFLOW CUSTOMIZATIONS */
 .react-flow__attribution {
-  @apply text-xs text-gray-400 bg-white/50 backdrop-blur-sm px-2 py-1 rounded;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+  color: var(--secondary-400);
+  background: var(--glass-white-60);
+  backdrop-filter: blur(8px);
 }
 
 .react-flow__controls {
-  @apply shadow-lg shadow-black/10;
+  box-shadow: var(--elevation-3);
 }
 
 .react-flow__controls-button {
-  @apply bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/90 transition-colors;
+  transition: all 0.2s ease;
+  background: var(--glass-white-80);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--surface-border);
+}
+
+.react-flow__controls-button:hover {
+  background: var(--glass-white-90);
 }
 
 .react-flow__minimap {
-  @apply shadow-lg shadow-black/10;
+  box-shadow: var(--elevation-3);
 }
 
 /* Custom Scrollbar */
@@ -121,9 +192,12 @@ body {
   background: rgba(0, 0, 0, 0.3);
 }
 
-/* Focus Styles */
+/* WORLD-CLASS FOCUS STYLES */
 .focus-visible {
-  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--primary-500),
+    0 0 0 4px var(--primary-200);
 }
 
 /* Animation Classes */
@@ -152,5 +226,27 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* WORLD-CLASS DESIGN SYSTEM - All styles applied directly in components */
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .glass-node,
+  .glass-button,
+  .glass-panel-enter-active,
+  .glass-panel-exit-active {
+    transition: none !important;
+    transform: none !important;
   }
 }

@@ -1,11 +1,27 @@
 import { useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import FlowCanvas from './components/canvas/FlowCanvas';
+import ErrorBanner from './components/ui/ErrorBanner';
+import WarningBanner from './components/ui/WarningBanner';
 import useFlowStore from './store/flowStore';
+import useUIStore from './store/uiStore';
+import { useAutoSave } from './hooks/useAutoSave';
+import type { FlowNode, FlowEdge } from './types/flow';
 import sampleFlowData from './data/sampleFlow.json';
 
 function App() {
   const { nodes, loadFlow, createNewFlow } = useFlowStore();
+  const {
+    validationErrors,
+    validationWarnings,
+    showErrorBanner,
+    showWarningBanner,
+    clearErrors,
+    clearWarnings,
+  } = useUIStore();
+
+  // Initialize auto-save functionality
+  useAutoSave();
 
   // Load sample data on first visit
   useEffect(() => {
@@ -19,8 +35,8 @@ function App() {
         // Load sample flow for first-time users
         try {
           const flowData = sampleFlowData as {
-            nodes: any[];
-            edges: any[];
+            nodes: FlowNode[];
+            edges: FlowEdge[];
             name: string;
             id: string;
           };
@@ -41,6 +57,20 @@ function App() {
   return (
     <Layout>
       <FlowCanvas />
+
+      {/* Error Banner */}
+      <ErrorBanner
+        errors={validationErrors}
+        isVisible={showErrorBanner}
+        onClose={clearErrors}
+      />
+
+      {/* Warning Banner */}
+      <WarningBanner
+        warnings={validationWarnings}
+        isVisible={showWarningBanner}
+        onClose={clearWarnings}
+      />
     </Layout>
   );
 }

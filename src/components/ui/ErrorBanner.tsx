@@ -2,6 +2,11 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import {
+  errorBannerVariants,
+  useReducedMotion,
+  getReducedMotionVariants,
+} from '../../utils/animations';
 import type { ValidationError } from '../../types/ui';
 
 interface ErrorBannerProps {
@@ -17,6 +22,11 @@ const ErrorBanner: React.FC<ErrorBannerProps> = ({
   onClose,
   className,
 }) => {
+  const reducedMotion = useReducedMotion();
+  const variants = reducedMotion
+    ? getReducedMotionVariants(errorBannerVariants)
+    : errorBannerVariants;
+
   if (errors.length === 0) return null;
 
   const primaryError = errors[0];
@@ -26,10 +36,10 @@ const ErrorBanner: React.FC<ErrorBannerProps> = ({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
+          variants={variants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
           className={cn(
             'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4',
             className

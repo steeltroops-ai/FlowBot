@@ -17,7 +17,11 @@ interface UIStore {
 
   // Error state
   validationErrors: ValidationError[];
+  validationWarnings: ValidationError[];
   showErrorBanner: boolean;
+  showWarningBanner: boolean;
+  isValidating: boolean;
+  lastValidationTime: number | null;
 
   // Loading state
   isLoading: boolean;
@@ -30,13 +34,17 @@ interface UIStore {
   togglePanel: () => void;
   setDragState: (isDragging: boolean, nodeType?: string) => void;
   showErrors: (errors: ValidationError[]) => void;
+  showWarnings: (warnings: ValidationError[]) => void;
   clearErrors: () => void;
+  clearWarnings: () => void;
+  setValidationState: (isValidating: boolean) => void;
   setLoading: (isLoading: boolean, message?: string) => void;
 
   // Computed getters
   get hasSelection(): boolean;
   get shouldShowNodesPanel(): boolean;
   get shouldShowSettingsPanel(): boolean;
+  get shouldShowPropertiesPanel(): boolean;
 }
 
 const useUIStore = create<UIStore>()(
@@ -50,7 +58,11 @@ const useUIStore = create<UIStore>()(
       isDragging: false,
       draggedNodeType: null,
       validationErrors: [],
+      validationWarnings: [],
       showErrorBanner: false,
+      showWarningBanner: false,
+      isValidating: false,
+      lastValidationTime: null,
       isLoading: false,
       loadingMessage: null,
 
@@ -103,10 +115,39 @@ const useUIStore = create<UIStore>()(
         }
       },
 
+      showWarnings: warnings => {
+        set({
+          validationWarnings: warnings,
+          showWarningBanner: warnings.length > 0,
+          lastValidationTime: Date.now(),
+        });
+
+        // Auto-hide warnings after 8 seconds
+        if (warnings.length > 0) {
+          setTimeout(() => {
+            get().clearWarnings();
+          }, 8000);
+        }
+      },
+
       clearErrors: () => {
         set({
           validationErrors: [],
           showErrorBanner: false,
+        });
+      },
+
+      clearWarnings: () => {
+        set({
+          validationWarnings: [],
+          showWarningBanner: false,
+        });
+      },
+
+      setValidationState: isValidating => {
+        set({
+          isValidating,
+          lastValidationTime: isValidating ? null : Date.now(),
         });
       },
 
@@ -134,6 +175,11 @@ const useUIStore = create<UIStore>()(
         return (
           isPanelOpen && panelMode === 'settings' && selectedNodeId !== null
         );
+      },
+
+      get shouldShowPropertiesPanel() {
+        const { panelMode, isPanelOpen } = get();
+        return isPanelOpen && panelMode === 'properties';
       },
     }),
     {

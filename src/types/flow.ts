@@ -38,15 +38,15 @@ export interface NodeConfig {
   type: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  defaultData: Record<string, any>;
+  defaultData: Record<string, unknown>;
   settingsComponent: React.ComponentType<NodeSettingsProps>;
   validationRules: ValidationRule[];
 }
 
 export interface NodeSettingsProps {
   nodeId: string;
-  data: Record<string, any>;
-  onChange: (data: Record<string, any>) => void;
+  data: Record<string, unknown>;
+  onChange: (data: Record<string, unknown>) => void;
 }
 
 // Validation types
@@ -75,7 +75,7 @@ export interface ValidationWarning {
 export interface ValidationRule {
   id: string;
   name: string;
-  validate: (data: any, context?: any) => ValidationError | null;
+  validate: (data: unknown, context?: unknown) => ValidationError | null;
 }
 
 // Flow metadata for persistence
