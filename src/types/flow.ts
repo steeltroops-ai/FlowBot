@@ -12,8 +12,8 @@ export interface FlowData {
 
 // Extended ReactFlow node with our custom data
 export interface FlowNode extends Node {
-  type: 'textNode';
-  data: TextNodeData;
+  type: string;
+  data: any; // Generic data to support all node types
 }
 
 // Extended ReactFlow edge with our custom data

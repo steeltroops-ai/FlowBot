@@ -116,16 +116,75 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ nodeId }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  // Settings tabs configuration
-  const settingsTabs = [
-    { id: 'content', label: 'Content', icon: Type },
-    { id: 'styling', label: 'Styling', icon: Palette },
-    { id: 'behavior', label: 'Behavior', icon: Clock },
-    { id: 'conditions', label: 'Logic', icon: Zap },
-    { id: 'validation', label: 'Validation', icon: CheckCircle },
-    { id: 'metadata', label: 'Metadata', icon: Tag },
-    { id: 'advanced', label: 'Advanced', icon: Settings },
-  ] as const;
+  // Get node-specific settings tabs based on node type
+  const getSettingsTabsForNodeType = (
+    nodeType: string
+  ): Array<{ id: SettingsTab; label: string; icon: any }> => {
+    const baseTabs = [
+      { id: 'content' as SettingsTab, label: 'Content', icon: Type },
+      { id: 'styling' as SettingsTab, label: 'Styling', icon: Palette },
+      { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+    ];
+
+    const nodeSpecificTabs: Record<
+      string,
+      Array<{ id: SettingsTab; label: string; icon: any }>
+    > = {
+      textNode: [
+        { id: 'content' as SettingsTab, label: 'Content', icon: Type },
+        { id: 'styling' as SettingsTab, label: 'Styling', icon: Palette },
+        { id: 'behavior' as SettingsTab, label: 'Behavior', icon: Clock },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+        { id: 'advanced' as SettingsTab, label: 'Advanced', icon: Zap },
+      ],
+      conditionalNode: [
+        { id: 'content' as SettingsTab, label: 'Logic', icon: Type },
+        { id: 'logic' as SettingsTab, label: 'Conditions', icon: Settings },
+        { id: 'styling' as SettingsTab, label: 'Styling', icon: Palette },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+      ],
+      inputNode: [
+        { id: 'content' as SettingsTab, label: 'Input', icon: Type },
+        {
+          id: 'validation' as SettingsTab,
+          label: 'Validation',
+          icon: CheckCircle,
+        },
+        { id: 'styling' as SettingsTab, label: 'Styling', icon: Palette },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+      ],
+      apiNode: [
+        { id: 'content' as SettingsTab, label: 'API Config', icon: Type },
+        { id: 'behavior' as SettingsTab, label: 'Behavior', icon: Clock },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+        { id: 'advanced' as SettingsTab, label: 'Advanced', icon: Zap },
+      ],
+      webhookNode: [
+        { id: 'content' as SettingsTab, label: 'Webhook', icon: Type },
+        { id: 'behavior' as SettingsTab, label: 'Behavior', icon: Clock },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+      ],
+      delayNode: [
+        { id: 'behavior' as SettingsTab, label: 'Timing', icon: Clock },
+        { id: 'styling' as SettingsTab, label: 'Styling', icon: Palette },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+      ],
+      emailActionNode: [
+        { id: 'content' as SettingsTab, label: 'Email', icon: Type },
+        { id: 'behavior' as SettingsTab, label: 'Behavior', icon: Clock },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+      ],
+      databaseActionNode: [
+        { id: 'content' as SettingsTab, label: 'Database', icon: Type },
+        { id: 'behavior' as SettingsTab, label: 'Behavior', icon: Clock },
+        { id: 'metadata' as SettingsTab, label: 'Metadata', icon: Tag },
+      ],
+    };
+
+    return nodeSpecificTabs[nodeType] || baseTabs;
+  };
+
+  const settingsTabs = getSettingsTabsForNodeType(node?.type || 'textNode');
 
   // Validation rules
   const validateSettings = useCallback(
@@ -396,6 +455,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ nodeId }) => {
           settings={settings}
           validationErrors={validationErrors}
           onChange={handleSettingsChange}
+          nodeType={node?.type}
         />
       </div>
 

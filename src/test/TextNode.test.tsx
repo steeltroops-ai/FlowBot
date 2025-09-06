@@ -173,6 +173,6 @@ describe('TextNode', () => {
     // The MessageSquare icon should be rendered
     const iconContainer =
       screen.getByText('Text Message').previousElementSibling;
-    expect(iconContainer).toHaveClass('w-6', 'h-6', 'bg-primary-100/80');
+    expect(iconContainer).toHaveClass('w-6', 'h-6', 'bg-green-100');
   });
 });

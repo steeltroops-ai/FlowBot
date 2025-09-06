@@ -11,6 +11,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import TextNode from '../nodes/TextNode';
+import GenericNode from '../nodes/GenericNode';
 import useFlowStore from '../../store/flowStore';
 import useUIStore from '../../store/uiStore';
 import { createNodeAtPosition } from '../../utils/nodeFactory';
@@ -18,11 +19,21 @@ import {
   isValidConnection,
   validateFlow,
 } from '../../services/validationService';
+import { getAllNodeTypes } from '../../config/nodeRegistry';
 
-// Define custom node types
-const nodeTypes = {
-  textNode: TextNode,
-};
+// Define custom node types - register all node types
+const allNodeTypes = getAllNodeTypes();
+const nodeTypes = allNodeTypes.reduce(
+  (acc, nodeConfig) => {
+    if (nodeConfig.type === 'textNode') {
+      acc[nodeConfig.type] = TextNode;
+    } else {
+      acc[nodeConfig.type] = GenericNode;
+    }
+    return acc;
+  },
+  {} as Record<string, React.ComponentType<any>>
+);
 
 // Custom edge styles with modern colors
 const defaultEdgeOptions = {
@@ -210,9 +221,9 @@ const FlowCanvasInner: React.FC = () => {
         fitViewOptions={{
           padding: 0.2,
           minZoom: 0.5,
-          maxZoom: 2.0,
+          maxZoom: 1.0,
         }}
-        defaultViewport={{ x: 0, y: 0, zoom: 1.0 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 2.0 }}
         attributionPosition="bottom-left"
         className="bg-secondary-50/30"
       >
@@ -227,13 +238,13 @@ const FlowCanvasInner: React.FC = () => {
 
         {/* Controls */}
         <Controls
-          className="bg-glass-white-80 backdrop-blur-md border border-glass-white-30 rounded-2xl shadow-glass-lg"
+          className="border bg-glass-white-80 backdrop-blur-md border-glass-white-30 rounded-2xl shadow-glass-lg"
           showInteractive={false}
         />
 
         {/* Mini Map */}
         <MiniMap
-          className="bg-glass-white-80 backdrop-blur-md border border-glass-white-30 rounded-2xl shadow-glass-lg"
+          className="border bg-glass-white-80 backdrop-blur-md border-glass-white-30 rounded-2xl shadow-glass-lg"
           nodeColor="#0ea5e9" // primary-500
           maskColor="rgba(0, 0, 0, 0.1)"
           pannable

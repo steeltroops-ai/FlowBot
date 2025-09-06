@@ -60,7 +60,7 @@ const useUIStore = create<UIStore>()(
       selectedEdgeId: null,
       previousSelectedNodeId: null,
       panelMode: 'nodes',
-      isPanelOpen: true,
+      isPanelOpen: true, // Always keep panel open
       panelHistory: ['nodes'],
       isTransitioning: false,
       isDragging: false,
@@ -231,10 +231,8 @@ const useUIStore = create<UIStore>()(
       },
 
       get shouldShowSettingsPanel() {
-        const { panelMode, isPanelOpen, selectedNodeId } = get();
-        return (
-          isPanelOpen && panelMode === 'settings' && selectedNodeId !== null
-        );
+        const { panelMode, isPanelOpen } = get();
+        return isPanelOpen && panelMode === 'settings';
       },
 
       get shouldShowPropertiesPanel() {

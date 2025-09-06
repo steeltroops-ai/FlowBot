@@ -42,6 +42,7 @@ type SettingsTab =
   | 'content'
   | 'styling'
   | 'behavior'
+  | 'logic'
   | 'conditions'
   | 'validation'
   | 'metadata'
@@ -52,6 +53,7 @@ interface SettingsContentProps {
   settings: NodeSettings;
   validationErrors: ValidationError[];
   onChange: (key: keyof NodeSettings, value: any) => void;
+  nodeType?: string;
 }
 
 const SettingsContent: React.FC<SettingsContentProps> = ({
@@ -59,18 +61,43 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
   settings,
   validationErrors,
   onChange,
+  nodeType = 'textNode',
 }) => {
   const getFieldError = (field: string) => {
     return validationErrors.find(error => error.field === field);
   };
 
-  const renderContentTab = () => (
+  const renderContentTab = () => {
+    // Render different content based on node type
+    switch (nodeType) {
+      case 'textNode':
+        return renderTextNodeContent();
+      case 'conditionalNode':
+        return renderConditionalNodeContent();
+      case 'inputNode':
+        return renderInputNodeContent();
+      case 'apiNode':
+        return renderApiNodeContent();
+      case 'webhookNode':
+        return renderWebhookNodeContent();
+      case 'delayNode':
+        return renderDelayNodeContent();
+      case 'emailActionNode':
+        return renderEmailActionNodeContent();
+      case 'databaseActionNode':
+        return renderDatabaseActionNodeContent();
+      default:
+        return renderTextNodeContent();
+    }
+  };
+
+  const renderTextNodeContent = () => (
     <div className="space-y-6">
       {/* Message Text */}
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-2">
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
           Message Text
-          <span className="text-interactive-danger ml-1">*</span>
+          <span className="ml-1 text-interactive-danger">*</span>
         </label>
         <div className="relative">
           <textarea
@@ -96,14 +123,14 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className="mt-2 flex items-center space-x-2 text-sm text-interactive-danger"
+            className="flex items-center mt-2 space-x-2 text-sm text-interactive-danger"
           >
             <AlertCircle className="w-4 h-4" />
             <span>{getFieldError('text')?.message}</span>
           </motion.div>
         )}
 
-        <div className="flex justify-between items-center mt-2">
+        <div className="flex items-center justify-between mt-2">
           <div className="flex items-center space-x-4">
             <label className="flex items-center space-x-2">
               <input
@@ -131,7 +158,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-2">
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
           Description
         </label>
         <input
@@ -139,7 +166,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
           value={settings.description || ''}
           onChange={e => onChange('description', e.target.value)}
           placeholder="Brief description of this message..."
-          className="w-full px-4 py-2 border border-surface-border bg-surface-elevated rounded-xl text-sm placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50 transition-all"
+          className="w-full px-4 py-2 text-sm transition-all border border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
         />
       </div>
     </div>
@@ -150,7 +177,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
       {/* Colors */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-secondary-700">
             Background Color
           </label>
           <div className="flex items-center space-x-3">
@@ -158,19 +185,19 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
               type="color"
               value={settings.backgroundColor || '#ffffff'}
               onChange={e => onChange('backgroundColor', e.target.value)}
-              className="w-12 h-10 rounded-lg border border-surface-border cursor-pointer"
+              className="w-12 h-10 border rounded-lg cursor-pointer border-surface-border"
             />
             <input
               type="text"
               value={settings.backgroundColor || '#ffffff'}
               onChange={e => onChange('backgroundColor', e.target.value)}
-              className="flex-1 px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm font-mono"
+              className="flex-1 px-3 py-2 font-mono text-sm border rounded-lg border-surface-border bg-surface-elevated"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-secondary-700">
             Text Color
           </label>
           <div className="flex items-center space-x-3">
@@ -178,13 +205,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
               type="color"
               value={settings.textColor || '#1f2937'}
               onChange={e => onChange('textColor', e.target.value)}
-              className="w-12 h-10 rounded-lg border border-surface-border cursor-pointer"
+              className="w-12 h-10 border rounded-lg cursor-pointer border-surface-border"
             />
             <input
               type="text"
               value={settings.textColor || '#1f2937'}
               onChange={e => onChange('textColor', e.target.value)}
-              className="flex-1 px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm font-mono"
+              className="flex-1 px-3 py-2 font-mono text-sm border rounded-lg border-surface-border bg-surface-elevated"
             />
           </div>
         </div>
@@ -193,13 +220,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
       {/* Typography */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-secondary-700">
             Font Size
           </label>
           <select
             value={settings.fontSize || 'medium'}
             onChange={e => onChange('fontSize', e.target.value)}
-            className="w-full px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm"
+            className="w-full px-3 py-2 text-sm border rounded-lg border-surface-border bg-surface-elevated"
           >
             <option value="small">Small</option>
             <option value="medium">Medium</option>
@@ -208,13 +235,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-secondary-700">
             Font Weight
           </label>
           <select
             value={settings.fontWeight || 'normal'}
             onChange={e => onChange('fontWeight', e.target.value)}
-            className="w-full px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm"
+            className="w-full px-3 py-2 text-sm border rounded-lg border-surface-border bg-surface-elevated"
           >
             <option value="normal">Normal</option>
             <option value="bold">Bold</option>
@@ -228,7 +255,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
     <div className="space-y-6">
       {/* Delay Settings */}
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-2">
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
           Delay (milliseconds)
         </label>
         <input
@@ -243,11 +270,11 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
               : 'border-surface-border bg-surface-elevated'
           }`}
         />
-        <p className="text-xs text-secondary-500 mt-1">
+        <p className="mt-1 text-xs text-secondary-500">
           Delay before showing this message (0-60000ms)
         </p>
         {getFieldError('delay') && (
-          <p className="text-xs text-interactive-danger mt-1">
+          <p className="mt-1 text-xs text-interactive-danger">
             {getFieldError('delay')?.message}
           </p>
         )}
@@ -266,7 +293,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
             Typing animation
           </span>
         </label>
-        <p className="text-xs text-secondary-500 mt-1">
+        <p className="mt-1 text-xs text-secondary-500">
           Show typing indicator before message appears
         </p>
       </div>
@@ -274,7 +301,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
       {/* Typing Speed */}
       {settings.typing && (
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-secondary-700">
             Typing Speed (characters per minute)
           </label>
           <input
@@ -292,7 +319,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
             }`}
           />
           {getFieldError('typingSpeed') && (
-            <p className="text-xs text-interactive-danger mt-1">
+            <p className="mt-1 text-xs text-interactive-danger">
               {getFieldError('typingSpeed')?.message}
             </p>
           )}
@@ -322,7 +349,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-secondary-700">
             Minimum Length
           </label>
           <input
@@ -335,12 +362,12 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
               })
             }
             min="0"
-            className="w-full px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm"
+            className="w-full px-3 py-2 text-sm border rounded-lg border-surface-border bg-surface-elevated"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="block mb-2 text-sm font-medium text-secondary-700">
             Maximum Length
           </label>
           <input
@@ -353,7 +380,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
               })
             }
             min="0"
-            className="w-full px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm"
+            className="w-full px-3 py-2 text-sm border rounded-lg border-surface-border bg-surface-elevated"
           />
         </div>
       </div>
@@ -364,14 +391,14 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
     <div className="space-y-6">
       {/* Tags */}
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-2">
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
           Tags
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
           {(settings.tags || []).map((tag, index) => (
             <span
               key={index}
-              className="inline-flex items-center px-3 py-1 bg-panel-settings-100 text-panel-settings-700 rounded-full text-xs"
+              className="inline-flex items-center px-3 py-1 text-xs rounded-full bg-panel-settings-100 text-panel-settings-700"
             >
               {tag}
               <button
@@ -400,20 +427,20 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
               e.currentTarget.value = '';
             }
           }}
-          className="w-full px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm"
+          className="w-full px-3 py-2 text-sm border rounded-lg border-surface-border bg-surface-elevated"
         />
       </div>
 
       {/* Notes */}
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-2">
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
           Notes
         </label>
         <textarea
           value={settings.notes || ''}
           onChange={e => onChange('notes', e.target.value)}
           placeholder="Internal notes about this node..."
-          className="w-full h-24 px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm resize-none"
+          className="w-full h-24 px-3 py-2 text-sm border rounded-lg resize-none border-surface-border bg-surface-elevated"
         />
       </div>
     </div>
@@ -422,14 +449,30 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
   const renderAdvancedTab = () => (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-2">
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
           Custom CSS
         </label>
         <textarea
           value={settings.customCSS || ''}
           onChange={e => onChange('customCSS', e.target.value)}
           placeholder="/* Custom CSS styles */&#10;.custom-node {&#10;  /* Your styles here */&#10;}"
-          className="w-full h-32 px-3 py-2 border border-surface-border bg-surface-elevated rounded-lg text-sm font-mono resize-none"
+          className="w-full h-32 px-3 py-2 font-mono text-sm border rounded-lg resize-none border-surface-border bg-surface-elevated"
+        />
+      </div>
+    </div>
+  );
+
+  const renderLogicTab = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          Conditional Logic
+        </label>
+        <textarea
+          value={settings.text || ''}
+          onChange={e => onChange('text', e.target.value)}
+          placeholder="Define your conditional logic rules..."
+          className="w-full h-32 px-4 py-3 text-sm transition-all border resize-none border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
         />
       </div>
     </div>
@@ -443,6 +486,8 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
         return renderStylingTab();
       case 'behavior':
         return renderBehaviorTab();
+      case 'logic':
+        return renderLogicTab();
       case 'validation':
         return renderValidationTab();
       case 'metadata':
@@ -453,6 +498,126 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
         return renderContentTab();
     }
   };
+
+  // Node-specific content renderers
+  const renderConditionalNodeContent = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          Condition Logic
+        </label>
+        <textarea
+          value={settings.text || 'Configure your conditional logic...'}
+          onChange={e => onChange('text', e.target.value)}
+          placeholder="Define conditions and branching logic..."
+          className="w-full h-32 px-4 py-3 text-sm transition-all border resize-none border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
+        />
+      </div>
+    </div>
+  );
+
+  const renderInputNodeContent = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          Input Label
+        </label>
+        <input
+          type="text"
+          value={settings.text || ''}
+          onChange={e => onChange('text', e.target.value)}
+          placeholder="Enter input field label..."
+          className="w-full px-4 py-3 text-sm transition-all border border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
+        />
+      </div>
+    </div>
+  );
+
+  const renderApiNodeContent = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          API Endpoint
+        </label>
+        <input
+          type="text"
+          value={settings.text || ''}
+          onChange={e => onChange('text', e.target.value)}
+          placeholder="https://api.example.com/endpoint"
+          className="w-full px-4 py-3 text-sm transition-all border border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
+        />
+      </div>
+    </div>
+  );
+
+  const renderWebhookNodeContent = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          Webhook URL
+        </label>
+        <input
+          type="text"
+          value={settings.text || ''}
+          onChange={e => onChange('text', e.target.value)}
+          placeholder="https://webhook.example.com/endpoint"
+          className="w-full px-4 py-3 text-sm transition-all border border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
+        />
+      </div>
+    </div>
+  );
+
+  const renderDelayNodeContent = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          Delay Duration (seconds)
+        </label>
+        <input
+          type="number"
+          value={settings.delay || 0}
+          onChange={e => onChange('delay', parseInt(e.target.value) || 0)}
+          placeholder="5"
+          min="0"
+          max="3600"
+          className="w-full px-4 py-3 text-sm transition-all border border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
+        />
+      </div>
+    </div>
+  );
+
+  const renderEmailActionNodeContent = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          Email Subject
+        </label>
+        <input
+          type="text"
+          value={settings.text || ''}
+          onChange={e => onChange('text', e.target.value)}
+          placeholder="Email subject line..."
+          className="w-full px-4 py-3 text-sm transition-all border border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
+        />
+      </div>
+    </div>
+  );
+
+  const renderDatabaseActionNodeContent = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block mb-2 text-sm font-medium text-secondary-700">
+          Database Query
+        </label>
+        <textarea
+          value={settings.text || ''}
+          onChange={e => onChange('text', e.target.value)}
+          placeholder="SELECT * FROM table WHERE condition..."
+          className="w-full h-32 px-4 py-3 text-sm transition-all border resize-none border-surface-border bg-surface-elevated rounded-xl placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-panel-settings-500/20 focus:border-panel-settings-500/50"
+        />
+      </div>
+    </div>
+  );
 
   return (
     <motion.div

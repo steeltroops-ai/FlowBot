@@ -48,8 +48,8 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
       whileHover={!reducedMotion ? 'hover' : undefined}
       whileTap={!reducedMotion ? 'tap' : undefined}
       className={cn(
-        'relative backdrop-blur-md border-2 rounded-xl w-[180px] h-[120px] shadow-elevation-2 transition-all duration-75',
-        selected && 'border-primary-500 shadow-elevation-3',
+        'relative backdrop-blur-md border-2 rounded-xl w-[180px] h-[90px] shadow-elevation-2 transition-all duration-75',
+        'bg-green-50 border-green-200',
         dragging && 'shadow-elevation-4 opacity-90'
       )}
       style={nodeStyle}
@@ -78,10 +78,10 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
       <div className="p-3 h-full flex flex-col">
         {/* Node Header */}
         <div className="flex items-center space-x-2 mb-2 drag-handle cursor-move">
-          <div className="w-6 h-6 bg-primary-100/80 rounded-lg flex items-center justify-center">
-            <MessageSquare className="w-3 h-3 text-primary-600" />
+          <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
+            <MessageSquare className="w-3 h-3 text-green-600" />
           </div>
-          <span className="text-xs font-medium text-secondary-700 tracking-tight">
+          <span className="text-xs font-medium text-green-700 tracking-tight">
             Text Message
           </span>
         </div>
@@ -117,14 +117,6 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
         style={{ right: -6 }}
         aria-label="Connection output - drag to another node to connect"
       />
-
-      {/* Selection Indicator - Simplified */}
-      {selected && (
-        <div
-          className="absolute -top-1 -right-1 w-3 h-3 bg-primary-500 rounded-full border border-surface-elevated"
-          aria-hidden="true"
-        />
-      )}
 
       {/* Hidden description for screen readers */}
       <div id={`node-${id}-description`} className="sr-only">

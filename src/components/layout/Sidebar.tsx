@@ -1,13 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
 import NodesPanel from '../panels/NodesPanel';
 import SettingsPanel from '../panels/SettingsPanel';
 import PropertiesPanel from '../panels/PropertiesPanel';
 import useUIStore from '../../store/uiStore';
 import { cn } from '../../utils/cn';
 import {
-  sidebarVariants,
   panelVariants,
   useReducedMotion,
   getReducedMotionVariants,
@@ -15,19 +13,14 @@ import {
 
 const Sidebar: React.FC = () => {
   const {
-    isPanelOpen,
     shouldShowNodesPanel,
     shouldShowSettingsPanel,
     shouldShowPropertiesPanel,
     selectedNodeId,
     panelMode,
-    togglePanel,
   } = useUIStore();
 
   const reducedMotion = useReducedMotion();
-  const sidebarAnimationVariants = reducedMotion
-    ? getReducedMotionVariants(sidebarVariants)
-    : sidebarVariants;
   const panelAnimationVariants = reducedMotion
     ? getReducedMotionVariants(panelVariants)
     : panelVariants;
@@ -51,12 +44,7 @@ const Sidebar: React.FC = () => {
   return (
     <>
       {/* Sidebar Container */}
-      <motion.div
-        variants={sidebarAnimationVariants}
-        initial="closed"
-        animate={isPanelOpen ? 'open' : 'closed'}
-        className={cn('relative overflow-hidden', getSidebarClass())}
-      >
+      <div className={cn('relative overflow-hidden', getSidebarClass())}>
         <div className="w-80 h-full">
           <AnimatePresence mode="wait">
             {shouldShowSettingsPanel ? (
@@ -68,7 +56,40 @@ const Sidebar: React.FC = () => {
                 exit="exit"
                 className="h-full"
               >
-                <SettingsPanel nodeId={selectedNodeId!} />
+                {selectedNodeId ? (
+                  <SettingsPanel nodeId={selectedNodeId} />
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-16 h-16 bg-panel-settings-100/80 rounded-xl flex items-center justify-center mb-4">
+                      <svg
+                        className="w-8 h-8 text-panel-settings-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-secondary-800 mb-2">
+                      Node Settings
+                    </h3>
+                    <p className="text-sm text-secondary-600 max-w-sm">
+                      Select a node from the canvas to configure its settings
+                      and properties.
+                    </p>
+                  </div>
+                )}
               </motion.div>
             ) : shouldShowPropertiesPanel ? (
               <motion.div
@@ -95,26 +116,7 @@ const Sidebar: React.FC = () => {
             ) : null}
           </AnimatePresence>
         </div>
-      </motion.div>
-
-      {/* Toggle Button */}
-      <motion.button
-        onClick={togglePanel}
-        className={cn(
-          'absolute top-1/2 -translate-y-1/2 w-8 h-16 bg-white/80 backdrop-blur-md border border-white/30 shadow-lg shadow-black/10 flex items-center justify-center z-10 transition-colors hover:bg-white/90',
-          isPanelOpen ? 'right-80 rounded-l-xl' : 'right-0 rounded-l-xl'
-        )}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        aria-label={isPanelOpen ? 'Close sidebar' : 'Open sidebar'}
-      >
-        <motion.div
-          animate={{ rotate: isPanelOpen ? 0 : 180 }}
-          transition={{ duration: 0.2 }}
-        >
-          <ChevronRight className="w-4 h-4 text-gray-600" />
-        </motion.div>
-      </motion.button>
+      </div>
     </>
   );
 };
