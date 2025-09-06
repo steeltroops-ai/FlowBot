@@ -19,6 +19,106 @@ const nodeTypes = getAllNodeTypes();
 
 const NodesPanel: React.FC = () => {
   const { setDragState } = useUIStore();
+
+  // Color scheme mapping for different node types (same as GenericNode)
+  const getNodeColorScheme = (nodeType: string) => {
+    const colorSchemes = {
+      textNode: {
+        bg: 'bg-green-50',
+        border: 'border-green-200',
+        iconBg: 'bg-green-100',
+        iconColor: 'text-green-600',
+        headerColor: 'text-green-700',
+      },
+      conditionalNode: {
+        bg: 'bg-blue-50',
+        border: 'border-blue-200',
+        iconBg: 'bg-blue-100',
+        iconColor: 'text-blue-600',
+        headerColor: 'text-blue-700',
+      },
+      inputNode: {
+        bg: 'bg-purple-50',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600',
+        headerColor: 'text-purple-700',
+      },
+      apiNode: {
+        bg: 'bg-orange-50',
+        border: 'border-orange-200',
+        iconBg: 'bg-orange-100',
+        iconColor: 'text-orange-600',
+        headerColor: 'text-orange-700',
+      },
+      webhookNode: {
+        bg: 'bg-yellow-50',
+        border: 'border-yellow-200',
+        iconBg: 'bg-yellow-100',
+        iconColor: 'text-yellow-600',
+        headerColor: 'text-yellow-700',
+      },
+      delayNode: {
+        bg: 'bg-indigo-50',
+        border: 'border-indigo-200',
+        iconBg: 'bg-indigo-100',
+        iconColor: 'text-indigo-600',
+        headerColor: 'text-indigo-700',
+      },
+      emailActionNode: {
+        bg: 'bg-red-50',
+        border: 'border-red-200',
+        iconBg: 'bg-red-100',
+        iconColor: 'text-red-600',
+        headerColor: 'text-red-700',
+      },
+      databaseActionNode: {
+        bg: 'bg-teal-50',
+        border: 'border-teal-200',
+        iconBg: 'bg-teal-100',
+        iconColor: 'text-teal-600',
+        headerColor: 'text-teal-700',
+      },
+      emailInputNode: {
+        bg: 'bg-purple-50',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600',
+        headerColor: 'text-purple-700',
+      },
+      phoneInputNode: {
+        bg: 'bg-purple-50',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600',
+        headerColor: 'text-purple-700',
+      },
+      dateInputNode: {
+        bg: 'bg-purple-50',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600',
+        headerColor: 'text-purple-700',
+      },
+      fileInputNode: {
+        bg: 'bg-purple-50',
+        border: 'border-purple-200',
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600',
+        headerColor: 'text-purple-700',
+      },
+    };
+
+    return (
+      colorSchemes[nodeType as keyof typeof colorSchemes] || {
+        bg: 'bg-gray-50',
+        border: 'border-gray-200',
+        iconBg: 'bg-gray-100',
+        iconColor: 'text-gray-600',
+        headerColor: 'text-gray-700',
+      }
+    );
+  };
   const reducedMotion = useReducedMotion();
   const containerVariants = reducedMotion
     ? getReducedMotionVariants(staggerContainer)
@@ -156,15 +256,20 @@ const NodesPanel: React.FC = () => {
 
       {/* Node Types List */}
       <motion.div
-        className="flex-1 p-6"
+        className="flex-1 p-6 overflow-y-auto scrollbar-hide"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
+        style={{
+          scrollbarWidth: 'none' /* Firefox */,
+          msOverflowStyle: 'none' /* Internet Explorer 10+ */,
+        }}
       >
         {filteredNodeTypes.length > 0 ? (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3">
             {filteredNodeTypes.map(nodeType => {
               const IconComponent = nodeType.icon;
+              const colorScheme = getNodeColorScheme(nodeType.type);
 
               return (
                 <motion.div
@@ -178,41 +283,37 @@ const NodesPanel: React.FC = () => {
                       handleDragStart(e, nodeType.type)
                     }
                     onDragEnd={handleDragEnd}
-                    className="p-5 bg-surface-elevated backdrop-blur-md border border-surface-border rounded-2xl shadow-elevation-2 hover:shadow-hover-lift hover:-translate-y-0.5 transition-all duration-200"
+                    className={`relative w-full h-20 p-4 backdrop-blur-md rounded-2xl shadow-elevation-2 hover:shadow-hover-lift hover:-translate-y-0.5 transition-all duration-200 ${colorScheme.bg} ${colorScheme.border} border`}
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-panel-nodes-100/80 rounded-xl flex items-center justify-center group-hover:bg-panel-nodes-200/80 transition-all duration-200 shadow-elevation-1">
-                        <IconComponent className="w-6 h-6 text-panel-nodes-600" />
+                    <div className="flex items-center h-full space-x-3">
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-elevation-1 ${colorScheme.iconBg}`}
+                      >
+                        <IconComponent
+                          className={`w-4 h-4 ${colorScheme.iconColor}`}
+                        />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-medium text-secondary-800 text-sm tracking-tight">
+                          <h3
+                            className={`font-medium text-sm tracking-tight truncate ${colorScheme.headerColor}`}
+                          >
                             {nodeType.label}
                           </h3>
                           {nodeType.isNew && (
-                            <span className="px-2 py-0.5 bg-panel-nodes-500 text-white text-xs rounded-full">
+                            <span className="px-1.5 py-0.5 bg-green-500 text-white text-xs rounded-full">
                               New
                             </span>
                           )}
                           {nodeType.isPremium && (
-                            <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs rounded-full">
+                            <span className="px-1.5 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs rounded-full">
                               Pro
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-secondary-500 mt-1 leading-relaxed">
+                        <p className="text-xs text-secondary-500 truncate leading-tight">
                           {nodeType.description}
                         </p>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {nodeType.tags.slice(0, 3).map(tag => (
-                            <span
-                              key={tag}
-                              className="px-2 py-0.5 bg-panel-nodes-50 text-panel-nodes-700 text-xs rounded-md"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
                       </div>
                     </div>
                   </div>

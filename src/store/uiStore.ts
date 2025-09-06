@@ -13,6 +13,7 @@ interface UIStore {
   isPanelOpen: boolean;
   panelHistory: PanelMode[];
   isTransitioning: boolean;
+  sidebarWidth: number;
 
   // Interaction state
   isDragging: boolean;
@@ -32,9 +33,11 @@ interface UIStore {
 
   // Actions
   selectNode: (id: string | null) => void;
+  selectNodeAndOpenSettings: (id: string) => void;
   selectEdge: (id: string | null) => void;
   setPanelMode: (mode: PanelMode) => void;
   togglePanel: () => void;
+  setSidebarWidth: (width: number) => void;
   setDragState: (isDragging: boolean, nodeType?: string) => void;
   navigateBack: () => void;
   setTransitioning: (isTransitioning: boolean) => void;
@@ -63,6 +66,7 @@ const useUIStore = create<UIStore>()(
       isPanelOpen: true, // Always keep panel open
       panelHistory: ['nodes'],
       isTransitioning: false,
+      sidebarWidth: 320, // Default sidebar width
       isDragging: false,
       draggedNodeType: null,
       validationErrors: [],
@@ -77,15 +81,34 @@ const useUIStore = create<UIStore>()(
       // Selection actions
       selectNode: id => {
         const currentState = get();
-        const newMode = id ? 'settings' : 'nodes';
+
+        // Track previous selection for navigation
+        const previousNodeId = currentState.selectedNodeId;
+
+        set({
+          selectedNodeId: id,
+          selectedEdgeId: null, // Clear edge selection when selecting node
+          previousSelectedNodeId: previousNodeId,
+          // Don't automatically change panel mode - let user control it via header buttons
+          isTransitioning: true,
+        });
+
+        // Clear transition state after animation
+        setTimeout(() => {
+          set({ isTransitioning: false });
+        });
+      },
+
+      selectNodeAndOpenSettings: id => {
+        const currentState = get();
 
         // Track previous selection for navigation
         const previousNodeId = currentState.selectedNodeId;
 
         // Update panel history
         const newHistory = [...currentState.panelHistory];
-        if (newMode !== currentState.panelMode) {
-          newHistory.push(newMode);
+        if ('settings' !== currentState.panelMode) {
+          newHistory.push('settings');
           // Keep history to max 10 items
           if (newHistory.length > 10) {
             newHistory.shift();
@@ -96,15 +119,9 @@ const useUIStore = create<UIStore>()(
           selectedNodeId: id,
           selectedEdgeId: null, // Clear edge selection when selecting node
           previousSelectedNodeId: previousNodeId,
-          panelMode: newMode,
+          panelMode: 'settings',
           panelHistory: newHistory,
-          isTransitioning: true,
         });
-
-        // Clear transition state after animation
-        setTimeout(() => {
-          set({ isTransitioning: false });
-        }, 300);
       },
 
       selectEdge: id => {
@@ -150,6 +167,12 @@ const useUIStore = create<UIStore>()(
 
       setTransitioning: isTransitioning => {
         set({ isTransitioning });
+      },
+
+      setSidebarWidth: width => {
+        // Clamp width between 280px and 600px
+        const clampedWidth = Math.max(280, Math.min(600, width));
+        set({ sidebarWidth: clampedWidth });
       },
 
       // Drag state actions

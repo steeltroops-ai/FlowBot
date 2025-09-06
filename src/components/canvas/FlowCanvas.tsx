@@ -53,19 +53,20 @@ const FlowCanvasInner: React.FC = () => {
 
   const {
     selectNode,
+    selectNodeAndOpenSettings,
     selectEdge,
     setDragState,
     showWarnings,
     setValidationState,
   } = useUIStore();
 
-  // Handle node selection
+  // Handle node selection - clicking canvas nodes opens settings
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: { id: string }) => {
       event.stopPropagation();
-      selectNode(node.id);
+      selectNodeAndOpenSettings(node.id);
     },
-    [selectNode]
+    [selectNodeAndOpenSettings]
   );
 
   // Handle edge selection

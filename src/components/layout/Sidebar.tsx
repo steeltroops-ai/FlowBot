@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NodesPanel from '../panels/NodesPanel';
 import SettingsPanel from '../panels/SettingsPanel';
@@ -18,12 +18,41 @@ const Sidebar: React.FC = () => {
     shouldShowPropertiesPanel,
     selectedNodeId,
     panelMode,
+    sidebarWidth,
+    setSidebarWidth,
   } = useUIStore();
 
   const reducedMotion = useReducedMotion();
   const panelAnimationVariants = reducedMotion
     ? getReducedMotionVariants(panelVariants)
     : panelVariants;
+
+  // Resize functionality
+  const isResizing = useRef(false);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      isResizing.current = true;
+      e.preventDefault();
+
+      const handleMouseMove = (e: MouseEvent) => {
+        if (!isResizing.current) return;
+
+        const newWidth = e.clientX;
+        setSidebarWidth(newWidth);
+      };
+
+      const handleMouseUp = () => {
+        isResizing.current = false;
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    },
+    [setSidebarWidth]
+  );
 
   // Determine sidebar class based on panel mode
   const getSidebarClass = () => {
@@ -44,8 +73,11 @@ const Sidebar: React.FC = () => {
   return (
     <>
       {/* Sidebar Container */}
-      <div className={cn('relative overflow-hidden', getSidebarClass())}>
-        <div className="w-80 h-full">
+      <div
+        className={cn('relative overflow-hidden', getSidebarClass())}
+        style={{ width: sidebarWidth }}
+      >
+        <div className="h-full" style={{ width: sidebarWidth }}>
           <AnimatePresence mode="wait">
             {shouldShowSettingsPanel ? (
               <motion.div
@@ -115,6 +147,14 @@ const Sidebar: React.FC = () => {
               </motion.div>
             ) : null}
           </AnimatePresence>
+        </div>
+
+        {/* Resize Handle */}
+        <div
+          className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent hover:bg-primary-200/50 transition-colors group"
+          onMouseDown={handleMouseDown}
+        >
+          <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-1 h-8 bg-secondary-300 rounded-l-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       </div>
     </>
