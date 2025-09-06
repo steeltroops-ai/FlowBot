@@ -1,6 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Plus, Search, X, Filter } from 'lucide-react';
+import { Plus, Search, X, Filter } from 'lucide-react';
+import {
+  getAllNodeTypes,
+  nodeCategories,
+  searchNodes,
+} from '../../config/nodeRegistry';
 import useUIStore from '../../store/uiStore';
 import {
   staggerContainer,
@@ -9,46 +14,8 @@ import {
   getReducedMotionVariants,
 } from '../../utils/animations';
 
-interface NodeTypeConfig {
-  type: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
-  category: 'message' | 'logic' | 'integration' | 'utility';
-  tags: string[];
-  isNew?: boolean;
-  isPremium?: boolean;
-}
-
-const nodeTypes: NodeTypeConfig[] = [
-  {
-    type: 'textNode',
-    label: 'Text Message',
-    icon: MessageSquare,
-    description: 'Send a text message to the user',
-    category: 'message',
-    tags: ['text', 'message', 'communication', 'basic'],
-  },
-  // Future node types can be added here
-  // Example of extensible architecture:
-  // {
-  //   type: 'conditionalNode',
-  //   label: 'Conditional Logic',
-  //   icon: GitBranch,
-  //   description: 'Branch conversation based on conditions',
-  //   category: 'logic',
-  //   tags: ['condition', 'branch', 'logic', 'flow'],
-  //   isNew: true,
-  // },
-];
-
-const categories = [
-  { value: 'all', label: 'All Nodes' },
-  { value: 'message', label: 'Messages' },
-  { value: 'logic', label: 'Logic' },
-  { value: 'integration', label: 'Integrations' },
-  { value: 'utility', label: 'Utilities' },
-];
+// Get all node types from the registry
+const nodeTypes = getAllNodeTypes();
 
 const NodesPanel: React.FC = () => {
   const { setDragState } = useUIStore();
@@ -67,24 +34,21 @@ const NodesPanel: React.FC = () => {
 
   // Filtered node types based on search and category
   const filteredNodeTypes = useMemo(() => {
-    return nodeTypes.filter(nodeType => {
-      // Category filter
-      const matchesCategory =
-        selectedCategory === 'all' || nodeType.category === selectedCategory;
+    let filtered = nodeTypes;
 
-      // Search filter (fuzzy search across label, description, and tags)
-      const matchesSearch =
-        searchQuery === '' ||
-        nodeType.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        nodeType.description
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        nodeType.tags.some(tag =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+    // Apply search filter first
+    if (searchQuery) {
+      filtered = searchNodes(searchQuery);
+    }
 
-      return matchesCategory && matchesSearch;
-    });
+    // Then apply category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(
+        nodeType => nodeType.category === selectedCategory
+      );
+    }
+
+    return filtered;
   }, [searchQuery, selectedCategory]);
 
   // Clear search
@@ -160,7 +124,7 @@ const NodesPanel: React.FC = () => {
             className="mb-4"
           >
             <div className="flex flex-wrap gap-2">
-              {categories.map(category => (
+              {nodeCategories.map(category => (
                 <button
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}

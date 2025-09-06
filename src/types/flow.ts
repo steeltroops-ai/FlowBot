@@ -31,6 +31,35 @@ export interface FlowEdge {
 export interface TextNodeData {
   text: string;
   placeholder?: string;
+
+  // Enhanced properties for comprehensive settings
+  richText?: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  fontSize?: 'small' | 'medium' | 'large';
+  fontWeight?: 'normal' | 'bold';
+  delay?: number;
+  typing?: boolean;
+  typingSpeed?: number;
+  conditions?: Array<{
+    id: string;
+    field: string;
+    operator: string;
+    value: string;
+    action: string;
+  }>;
+  validation?: {
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    pattern?: string;
+    customMessage?: string;
+  };
+  description?: string;
+  tags?: string[];
+  notes?: string;
+  customCSS?: string;
+  customData?: Record<string, any>;
 }
 
 // Node configuration for extensibility
