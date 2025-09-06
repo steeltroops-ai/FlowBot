@@ -45,7 +45,7 @@ describe('App', () => {
 
     // Check if the main layout elements are present
     expect(screen.getByText('FlowBot')).toBeInTheDocument();
-    expect(screen.getByText('Save Flow')).toBeInTheDocument();
+    expect(screen.getByText('Save')).toBeInTheDocument();
     expect(screen.getByTestId('react-flow-canvas')).toBeInTheDocument();
   });
 
@@ -59,7 +59,7 @@ describe('App', () => {
   it('displays the save button', () => {
     render(<App />);
 
-    const saveButton = screen.getByText('Save Flow');
+    const saveButton = screen.getByText('Save');
     expect(saveButton).toBeInTheDocument();
   });
 

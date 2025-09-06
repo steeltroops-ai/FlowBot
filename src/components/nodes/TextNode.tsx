@@ -24,6 +24,22 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
     ? getReducedMotionVariants(nodeVariants)
     : nodeVariants;
 
+  // Apply custom styling from settings
+  const nodeStyle = {
+    backgroundColor: data.backgroundColor || '#ffffff',
+    color: data.textColor || '#1f2937',
+    ...(data.customCSS && { style: data.customCSS }),
+  };
+
+  const textSizeClass = {
+    small: 'text-xs',
+    medium: 'text-sm',
+    large: 'text-base',
+  }[data.fontSize || 'medium'];
+
+  const fontWeightClass =
+    data.fontWeight === 'bold' ? 'font-bold' : 'font-normal';
+
   return (
     <motion.div
       variants={variants}
@@ -32,10 +48,11 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
       whileHover={!reducedMotion ? 'hover' : undefined}
       whileTap={!reducedMotion ? 'tap' : undefined}
       className={cn(
-        'relative bg-surface-elevated backdrop-blur-md border-2 rounded-xl w-[180px] h-[120px] shadow-elevation-2 transition-all duration-75',
-        selected && 'border-primary-500 bg-primary-50/90 shadow-elevation-3',
+        'relative backdrop-blur-md border-2 rounded-xl w-[180px] h-[120px] shadow-elevation-2 transition-all duration-75',
+        selected && 'border-primary-500 shadow-elevation-3',
         dragging && 'shadow-elevation-4 opacity-90'
       )}
+      style={nodeStyle}
       role="button"
       tabIndex={0}
       aria-label={`Text message node: ${displayText}`}
@@ -73,9 +90,12 @@ const TextNode: React.FC<NodeProps<TextNodeData>> = ({
         <div className="flex-1 flex flex-col justify-center">
           <p
             className={cn(
-              'text-xs leading-relaxed break-words font-normal line-clamp-4',
-              isEmpty ? 'text-secondary-400 italic' : 'text-secondary-700'
+              'leading-relaxed break-words line-clamp-4',
+              textSizeClass,
+              fontWeightClass,
+              isEmpty ? 'opacity-60 italic' : ''
             )}
+            style={{ color: data.textColor || '#1f2937' }}
           >
             {displayText}
           </p>

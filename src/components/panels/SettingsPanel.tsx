@@ -171,31 +171,44 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ nodeId }) => {
     []
   );
 
+  // Create initial settings from node data
+  const getInitialSettings = useCallback(
+    (nodeData: any): NodeSettings => ({
+      text: nodeData.text || '',
+      richText: nodeData.richText || false,
+      backgroundColor: nodeData.backgroundColor || '#ffffff',
+      textColor: nodeData.textColor || '#1f2937',
+      fontSize: nodeData.fontSize || 'medium',
+      fontWeight: nodeData.fontWeight || 'normal',
+      delay: nodeData.delay || 0,
+      typing: nodeData.typing || false,
+      typingSpeed: nodeData.typingSpeed || 50,
+      conditions: nodeData.conditions || [],
+      validation: nodeData.validation || {},
+      description: nodeData.description || '',
+      tags: nodeData.tags || [],
+      notes: nodeData.notes || '',
+      customCSS: nodeData.customCSS || '',
+      customData: nodeData.customData || {},
+    }),
+    []
+  );
+
+  // Store initial settings for comparison
+  const [initialSettings, setInitialSettings] = useState<NodeSettings>(() =>
+    node ? getInitialSettings(node.data) : ({} as NodeSettings)
+  );
+
   // Update local state when node changes
   useEffect(() => {
     if (node) {
-      setSettings({
-        text: node.data.text || '',
-        richText: node.data.richText || false,
-        backgroundColor: node.data.backgroundColor || '#ffffff',
-        textColor: node.data.textColor || '#1f2937',
-        fontSize: node.data.fontSize || 'medium',
-        fontWeight: node.data.fontWeight || 'normal',
-        delay: node.data.delay || 0,
-        typing: node.data.typing || false,
-        typingSpeed: node.data.typingSpeed || 50,
-        conditions: node.data.conditions || [],
-        validation: node.data.validation || {},
-        description: node.data.description || '',
-        tags: node.data.tags || [],
-        notes: node.data.notes || '',
-        customCSS: node.data.customCSS || '',
-        customData: node.data.customData || {},
-      });
+      const newInitialSettings = getInitialSettings(node.data);
+      setInitialSettings(newInitialSettings);
+      setSettings(newInitialSettings);
       setHasChanges(false);
       setValidationErrors([]);
     }
-  }, [node]);
+  }, [node, getInitialSettings]);
 
   // Real-time validation
   useEffect(() => {
@@ -208,28 +221,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ nodeId }) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
 
-    // Check if there are changes
+    // Check if there are changes by comparing with initial settings
     const hasChanges =
-      JSON.stringify(newSettings) !==
-      JSON.stringify({
-        text: node?.data.text || '',
-        richText: node?.data.richText || false,
-        backgroundColor: node?.data.backgroundColor || '#ffffff',
-        textColor: node?.data.textColor || '#1f2937',
-        fontSize: node?.data.fontSize || 'medium',
-        fontWeight: node?.data.fontWeight || 'normal',
-        delay: node?.data.delay || 0,
-        typing: node?.data.typing || false,
-        typingSpeed: node?.data.typingSpeed || 50,
-        conditions: node?.data.conditions || [],
-        validation: node?.data.validation || {},
-        description: node?.data.description || '',
-        tags: node?.data.tags || [],
-        notes: node?.data.notes || '',
-        customCSS: node?.data.customCSS || '',
-        customData: node?.data.customData || {},
-      });
-
+      JSON.stringify(newSettings) !== JSON.stringify(initialSettings);
     setHasChanges(hasChanges);
 
     // Real-time preview update
@@ -251,6 +245,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ nodeId }) => {
     setIsSaving(true);
     try {
       updateNode(nodeId, settings);
+      setInitialSettings(settings); // Update initial settings after successful save
       setHasChanges(false);
       setLastSaved(new Date());
       setValidationErrors([]);

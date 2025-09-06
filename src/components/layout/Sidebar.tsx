@@ -59,7 +59,7 @@ const Sidebar: React.FC = () => {
       >
         <div className="w-80 h-full">
           <AnimatePresence mode="wait">
-            {shouldShowSettingsPanel && selectedNodeId ? (
+            {shouldShowSettingsPanel ? (
               <motion.div
                 key="settings"
                 variants={panelAnimationVariants}
@@ -68,7 +68,7 @@ const Sidebar: React.FC = () => {
                 exit="exit"
                 className="h-full"
               >
-                <SettingsPanel nodeId={selectedNodeId} />
+                <SettingsPanel nodeId={selectedNodeId!} />
               </motion.div>
             ) : shouldShowPropertiesPanel ? (
               <motion.div

@@ -106,14 +106,26 @@ const Header: React.FC = () => {
     >
       {/* Left side - Logo and title */}
       <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-sm">F</span>
+        <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-elevation-1">
+          <svg
+            className="w-5 h-5 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-surface-800 tracking-tight">
+          <h1 className="text-lg font-semibold text-secondary-800 tracking-tight">
             FlowBot
           </h1>
-          <p className="text-xs text-surface-500 -mt-1">
+          <p className="text-xs text-secondary-500 -mt-1">
             {flowName}
             {isModified && ' •'}
           </p>
@@ -121,20 +133,9 @@ const Header: React.FC = () => {
       </div>
 
       {/* Right side - Actions */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3">
         {/* Auto-save status */}
         <AutoSaveStatus />
-
-        {isModified && (
-          <span
-            id="unsaved-changes"
-            className="text-xs text-gray-500 bg-yellow-100/50 px-2 py-1 rounded-full"
-            role="status"
-            aria-live="polite"
-          >
-            Unsaved changes
-          </span>
-        )}
 
         {/* Action buttons */}
         <div className="flex items-center space-x-2">
@@ -213,16 +214,16 @@ const Header: React.FC = () => {
           onClick={handleSave}
           loading={isLoading}
           disabled={isLoading}
-          className="shadow-lg"
+          size="sm"
+          className="shadow-elevation-2"
           aria-label={isLoading ? 'Saving flow...' : 'Save flow'}
-          aria-describedby={isModified ? 'unsaved-changes' : undefined}
         >
           {isLoading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
           ) : (
-            <Save className="w-4 h-4 mr-2" />
+            <Save className="w-3 h-3 mr-1" />
           )}
-          Save Flow
+          Save
         </Button>
       </div>
     </header>

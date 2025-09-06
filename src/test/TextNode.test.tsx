@@ -161,7 +161,7 @@ describe('TextNode', () => {
     const nodeElement = screen.getByRole('button');
     expect(nodeElement).toHaveClass(
       'relative',
-      'bg-surface-elevated',
+      'backdrop-blur-md',
       'border-2',
       'rounded-xl'
     );

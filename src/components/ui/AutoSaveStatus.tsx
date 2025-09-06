@@ -9,76 +9,47 @@ interface AutoSaveStatusProps {
 }
 
 const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({ className }) => {
-  const { 
-    autoSaveEnabled, 
-    isModified, 
-    lastAutoSave, 
-    lastSaved 
-  } = useFlowStore();
+  const { autoSaveEnabled, isModified, lastAutoSave, lastSaved } =
+    useFlowStore();
 
   const getStatusInfo = () => {
     if (!autoSaveEnabled) {
       return {
         icon: CloudOff,
-        text: 'Auto-save disabled',
-        color: 'text-gray-500',
-        bgColor: 'bg-gray-100/50',
+        text: 'Auto-save off',
+        color: 'text-secondary-500',
+        bgColor: 'bg-secondary-100/50',
       };
     }
 
     if (!isModified && (lastSaved || lastAutoSave)) {
       return {
         icon: Check,
-        text: 'All changes saved',
-        color: 'text-green-600',
-        bgColor: 'bg-green-100/50',
+        text: 'Saved',
+        color: 'text-interactive-success',
+        bgColor: 'bg-interactive-success-50/50',
       };
     }
 
     if (isModified) {
       return {
         icon: Clock,
-        text: 'Saving changes...',
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-100/50',
+        text: 'Saving...',
+        color: 'text-primary-600',
+        bgColor: 'bg-primary-100/50',
       };
     }
 
     return {
       icon: Cloud,
-      text: 'Auto-save enabled',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100/50',
+      text: 'Auto-save on',
+      color: 'text-primary-600',
+      bgColor: 'bg-primary-100/50',
     };
   };
 
   const statusInfo = getStatusInfo();
   const IconComponent = statusInfo.icon;
-
-  const formatLastSaved = () => {
-    const timestamp = lastAutoSave || lastSaved;
-    if (!timestamp) return null;
-
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-    if (diffMinutes < 1) {
-      return 'Just now';
-    } else if (diffMinutes < 60) {
-      return `${diffMinutes}m ago`;
-    } else {
-      const diffHours = Math.floor(diffMinutes / 60);
-      if (diffHours < 24) {
-        return `${diffHours}h ago`;
-      } else {
-        return date.toLocaleDateString();
-      }
-    }
-  };
-
-  const lastSavedText = formatLastSaved();
 
   return (
     <AnimatePresence>
@@ -98,24 +69,19 @@ const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({ className }) => {
         aria-label={`Auto-save status: ${statusInfo.text}`}
       >
         <motion.div
-          animate={isModified && autoSaveEnabled ? { rotate: 360 } : { rotate: 0 }}
-          transition={{ 
-            duration: 2, 
+          animate={
+            isModified && autoSaveEnabled ? { rotate: 360 } : { rotate: 0 }
+          }
+          transition={{
+            duration: 2,
             repeat: isModified && autoSaveEnabled ? Infinity : 0,
-            ease: 'linear'
+            ease: 'linear',
           }}
         >
           <IconComponent className="w-3 h-3" />
         </motion.div>
-        
-        <div className="flex flex-col">
-          <span>{statusInfo.text}</span>
-          {lastSavedText && (
-            <span className="text-xs opacity-75">
-              Last saved {lastSavedText}
-            </span>
-          )}
-        </div>
+
+        <span>{statusInfo.text}</span>
       </motion.div>
     </AnimatePresence>
   );

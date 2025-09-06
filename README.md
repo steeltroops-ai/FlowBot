@@ -1,89 +1,63 @@
-# FlowBot - Visual Chatbot Flow Builder
+# FlowBot
 
-A modern, accessible chatbot flow builder built with React 19, TypeScript, and ReactFlow. Create conversational flows with an intuitive drag-and-drop interface inspired by Apple's design principles.
+A modern, professional chatbot flow builder with drag-and-drop functionality, real-time editing, and comprehensive node configuration. Built with React, TypeScript, and ReactFlow for creating sophisticated conversational flows.
 
-![FlowBot Preview](https://via.placeholder.com/800x400/007aff/ffffff?text=FlowBot+Flow+Builder)
+## Key Features
 
-## ✨ Features
+- **Drag-and-Drop Interface**: Intuitive visual flow builder with smooth animations and professional design
+- **Comprehensive Node Library**: 12+ node types including messages, logic, input, integration, utility, and action nodes
+- **Settings Panel**: 7-tab configuration interface with real-time preview and validation
+- **Real-time Auto-save**: Intelligent auto-save functionality with visual status indicators
 
-- **🎨 Modern UI**: Glassmorphism design with smooth animations
-- **♿ Accessible**: WCAG 2.1 AA compliant with keyboard navigation
-- **🚀 Fast**: Built with Vite and optimized for performance
-- **🔧 TypeScript**: Full type safety throughout the codebase
-- **📱 Responsive**: Works seamlessly across all device sizes
-- **🎯 Intuitive**: Drag-and-drop interface with real-time validation
-- **💾 Auto-save**: Automatic persistence with undo/redo support
-- **🧪 Tested**: Comprehensive test suite with Vitest
+## Project Structure
 
-## 🚀 Quick Start
+```
+src/
+├── components/          # React components
+│   ├── layout/         # Header, Sidebar, Layout components
+│   ├── nodes/          # Flow node components (TextNode, etc.)
+│   ├── panels/         # Settings and configuration panels
+│   └── ui/             # Reusable UI components
+├── store/              # Zustand state management
+│   ├── flowStore.ts    # Flow data and operations
+│   └── uiStore.ts      # UI state and panel management
+├── types/              # TypeScript type definitions
+│   ├── flow.ts         # Flow and node type definitions
+│   └── ui.ts           # UI-related type definitions
+├── config/             # Configuration files
+│   └── nodeRegistry.ts # Node type registry and definitions
+├── services/           # Business logic services
+├── hooks/              # Custom React hooks
+└── utils/              # Utility functions and helpers
+```
 
-### Prerequisites
-
-- Node.js 20+
-- pnpm (recommended) or npm
+## Getting Started
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/flowbot.git
-cd flowbot
-
 # Install dependencies
 pnpm install
+```
 
+### Development
+
+```bash
 # Start development server
 pnpm dev
 ```
 
-The application will be available at `http://localhost:5173`
-
-### Build for Production
+### Build
 
 ```bash
-# Build the application
+# Build for production
 pnpm build
-
-# Preview the production build
-pnpm preview
 ```
 
-## 🏗️ Tech Stack
+## Technology Stack
 
-### Core
-
-- **React 19** - Latest React with concurrent features
-- **TypeScript 5.8** - Full type safety
-- **Vite 7.1** - Fast build tool and dev server
-- **ReactFlow 11.11** - Visual flow builder engine
-
-### Styling & Animation
-
-- **Tailwind CSS 3.4** - Utility-first CSS framework
-- **Framer Motion 12.23** - Physics-based animations
-- **Glassmorphism** - Modern visual design patterns
-
-### State Management
-
-- **Zustand 5.0** - Lightweight state management
-- **localStorage** - Client-side persistence
-
-### Development Tools
-
-- **Vitest** - Fast unit testing
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **GitHub Actions** - CI/CD pipeline
-
-## 📚 Documentation
-
-- [Product Requirements](docs/PRD.md) - Feature specifications
-- [Architecture Guide](docs/ARCHITECTURE.md) - Technical architecture
-- [Design Philosophy](docs/DESIGN_PHILOSOPHY.md) - UI/UX principles
-- [Development Roadmap](docs/ROADMAP.md) - Future plans
-- [Operations Guide](docs/OPS.md) - Deployment and maintenance
-- [Delivery Summary](docs/DELIVERY_SUMMARY.md) - Project completion report
-
----
-
-**Built with ❤️ using React 19 and modern web technologies**
+- **React 18** - Modern React with hooks and concurrent features
+- **TypeScript** - Type-safe development with strict mode enabled
+- **ReactFlow** - Professional flow diagram library with advanced features
+- **Tailwind CSS** - Utility-first CSS framework with custom design system
+- **Zustand** - Lightweight state management with TypeScript support
