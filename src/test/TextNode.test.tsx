@@ -90,7 +90,7 @@ describe('TextNode', () => {
 
     render(<TextNode {...longNodeProps} />);
 
-    expect(screen.getByText('150 characters')).toBeInTheDocument();
+    expect(screen.getByText('150 chars')).toBeInTheDocument();
   });
 
   it('renders handles for connections', () => {
@@ -162,8 +162,8 @@ describe('TextNode', () => {
     expect(nodeElement).toHaveClass(
       'relative',
       'bg-surface-elevated',
-      'border',
-      'rounded-2xl'
+      'border-2',
+      'rounded-xl'
     );
   });
 
@@ -173,6 +173,6 @@ describe('TextNode', () => {
     // The MessageSquare icon should be rendered
     const iconContainer =
       screen.getByText('Text Message').previousElementSibling;
-    expect(iconContainer).toHaveClass('w-8', 'h-8', 'bg-primary-100/80');
+    expect(iconContainer).toHaveClass('w-6', 'h-6', 'bg-primary-100/80');
   });
 });

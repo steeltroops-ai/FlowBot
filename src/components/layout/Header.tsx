@@ -100,7 +100,7 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className="h-16 bg-glass-white-80 backdrop-blur-xl border-b border-secondary-200/30 shadow-header-float flex items-center justify-between px-6 relative z-50"
+      className="h-16 bg-secondary-50/90 backdrop-blur-xl border-b border-secondary-200/40 shadow-elevation-1 flex items-center justify-between px-6 relative z-50"
       role="banner"
       aria-label="FlowBot application header"
     >

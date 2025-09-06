@@ -208,20 +208,21 @@ const FlowCanvasInner: React.FC = () => {
         isValidConnection={isValidConnectionCallback}
         fitView
         fitViewOptions={{
-          padding: 0.1,
+          padding: 0.2,
           minZoom: 0.5,
           maxZoom: 2.0,
         }}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 1.0 }}
         attributionPosition="bottom-left"
-        className="bg-secondary-50"
+        className="bg-secondary-50/30"
       >
-        {/* Background Pattern */}
+        {/* Background Grid Pattern */}
         <Background
-          variant={BackgroundVariant.Dots}
+          variant={BackgroundVariant.Lines}
           gap={20}
           size={1}
-          color="#e2e8f0" // canvas-200
+          color="#e5e7eb"
+          style={{ opacity: 0.5 }}
         />
 
         {/* Controls */}
